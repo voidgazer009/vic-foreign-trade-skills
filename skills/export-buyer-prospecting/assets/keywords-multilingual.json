@@ -1,59 +1,504 @@
 {
   "_note": "Buyer-type keywords and country settings. lang = search language, tld = country domain, gl = Google country code, tz = IANA zone for send timing, region_risk = needs sanctions screening.",
   "languages": {
-    "en": {"importer": "importer", "distributor": "distributor", "wholesaler": "wholesaler", "supplier_wanted": "looking for supplier", "trade_show": "exhibitor list"},
-    "de": {"importer": "Importeur", "distributor": "Distributor", "wholesaler": "Großhändler", "supplier_wanted": "Lieferant gesucht", "trade_show": "Ausstellerverzeichnis"},
-    "fr": {"importer": "importateur", "distributor": "distributeur", "wholesaler": "grossiste", "supplier_wanted": "recherche fournisseur", "trade_show": "liste des exposants"},
-    "es": {"importer": "importador", "distributor": "distribuidor", "wholesaler": "mayorista", "supplier_wanted": "buscamos proveedor", "trade_show": "lista de expositores"},
-    "pt": {"importer": "importador", "distributor": "distribuidor", "wholesaler": "atacadista", "supplier_wanted": "procuramos fornecedor", "trade_show": "lista de expositores"},
-    "it": {"importer": "importatore", "distributor": "distributore", "wholesaler": "grossista", "supplier_wanted": "cerchiamo fornitore", "trade_show": "elenco espositori"},
-    "nl": {"importer": "importeur", "distributor": "distributeur", "wholesaler": "groothandel", "supplier_wanted": "leverancier gezocht", "trade_show": "exposantenlijst"},
-    "pl": {"importer": "importer", "distributor": "dystrybutor", "wholesaler": "hurtownia", "supplier_wanted": "szukamy dostawcy", "trade_show": "lista wystawców"},
-    "ru": {"importer": "импортер", "distributor": "дистрибьютор", "wholesaler": "оптовый поставщик", "supplier_wanted": "ищем поставщика", "trade_show": "список участников"},
-    "tr": {"importer": "ithalatçı", "distributor": "distribütör", "wholesaler": "toptancı", "supplier_wanted": "tedarikçi arıyoruz", "trade_show": "katılımcı listesi"},
-    "ar": {"importer": "مستورد", "distributor": "موزع", "wholesaler": "تاجر جملة", "supplier_wanted": "نبحث عن مورد", "trade_show": "قائمة العارضين"},
-    "ja": {"importer": "輸入商社", "distributor": "代理店", "wholesaler": "卸売", "supplier_wanted": "仕入先募集", "trade_show": "出展者一覧"},
-    "ko": {"importer": "수입업체", "distributor": "유통업체", "wholesaler": "도매", "supplier_wanted": "공급업체 모집", "trade_show": "참가업체 목록"},
-    "vi": {"importer": "nhà nhập khẩu", "distributor": "nhà phân phối", "wholesaler": "bán buôn", "supplier_wanted": "tìm nhà cung cấp", "trade_show": "danh sách nhà triển lãm"},
-    "id": {"importer": "importir", "distributor": "distributor", "wholesaler": "grosir", "supplier_wanted": "mencari supplier", "trade_show": "daftar peserta pameran"},
-    "th": {"importer": "ผู้นำเข้า", "distributor": "ตัวแทนจำหน่าย", "wholesaler": "ค้าส่ง", "supplier_wanted": "หาซัพพลายเออร์", "trade_show": "รายชื่อผู้แสดงสินค้า"}
+    "en": {
+      "importer": "importer",
+      "distributor": "distributor",
+      "wholesaler": "wholesaler",
+      "supplier_wanted": "looking for supplier",
+      "trade_show": "exhibitor list"
+    },
+    "de": {
+      "importer": "Importeur",
+      "distributor": "Distributor",
+      "wholesaler": "Großhändler",
+      "supplier_wanted": "Lieferant gesucht",
+      "trade_show": "Ausstellerverzeichnis"
+    },
+    "fr": {
+      "importer": "importateur",
+      "distributor": "distributeur",
+      "wholesaler": "grossiste",
+      "supplier_wanted": "recherche fournisseur",
+      "trade_show": "liste des exposants"
+    },
+    "es": {
+      "importer": "importador",
+      "distributor": "distribuidor",
+      "wholesaler": "mayorista",
+      "supplier_wanted": "buscamos proveedor",
+      "trade_show": "lista de expositores"
+    },
+    "pt": {
+      "importer": "importador",
+      "distributor": "distribuidor",
+      "wholesaler": "atacadista",
+      "supplier_wanted": "procuramos fornecedor",
+      "trade_show": "lista de expositores"
+    },
+    "it": {
+      "importer": "importatore",
+      "distributor": "distributore",
+      "wholesaler": "grossista",
+      "supplier_wanted": "cerchiamo fornitore",
+      "trade_show": "elenco espositori"
+    },
+    "nl": {
+      "importer": "importeur",
+      "distributor": "distributeur",
+      "wholesaler": "groothandel",
+      "supplier_wanted": "leverancier gezocht",
+      "trade_show": "exposantenlijst"
+    },
+    "pl": {
+      "importer": "importer",
+      "distributor": "dystrybutor",
+      "wholesaler": "hurtownia",
+      "supplier_wanted": "szukamy dostawcy",
+      "trade_show": "lista wystawców"
+    },
+    "ru": {
+      "importer": "импортер",
+      "distributor": "дистрибьютор",
+      "wholesaler": "оптовый поставщик",
+      "supplier_wanted": "ищем поставщика",
+      "trade_show": "список участников"
+    },
+    "tr": {
+      "importer": "ithalatçı",
+      "distributor": "distribütör",
+      "wholesaler": "toptancı",
+      "supplier_wanted": "tedarikçi arıyoruz",
+      "trade_show": "katılımcı listesi"
+    },
+    "ar": {
+      "importer": "مستورد",
+      "distributor": "موزع",
+      "wholesaler": "تاجر جملة",
+      "supplier_wanted": "نبحث عن مورد",
+      "trade_show": "قائمة العارضين"
+    },
+    "ja": {
+      "importer": "輸入商社",
+      "distributor": "代理店",
+      "wholesaler": "卸売",
+      "supplier_wanted": "仕入先募集",
+      "trade_show": "出展者一覧"
+    },
+    "ko": {
+      "importer": "수입업체",
+      "distributor": "유통업체",
+      "wholesaler": "도매",
+      "supplier_wanted": "공급업체 모집",
+      "trade_show": "참가업체 목록"
+    },
+    "vi": {
+      "importer": "nhà nhập khẩu",
+      "distributor": "nhà phân phối",
+      "wholesaler": "bán buôn",
+      "supplier_wanted": "tìm nhà cung cấp",
+      "trade_show": "danh sách nhà triển lãm"
+    },
+    "id": {
+      "importer": "importir",
+      "distributor": "distributor",
+      "wholesaler": "grosir",
+      "supplier_wanted": "mencari supplier",
+      "trade_show": "daftar peserta pameran"
+    },
+    "th": {
+      "importer": "ผู้นำเข้า",
+      "distributor": "ตัวแทนจำหน่าย",
+      "wholesaler": "ค้าส่ง",
+      "supplier_wanted": "หาซัพพลายเออร์",
+      "trade_show": "รายชื่อผู้แสดงสินค้า"
+    }
   },
   "countries": {
-    "US": {"name": "United States", "lang": ["en"], "tld": "com", "gl": "us", "tz": "America/New_York"},
-    "CA": {"name": "Canada", "lang": ["en", "fr"], "tld": "ca", "gl": "ca", "tz": "America/Toronto"},
-    "MX": {"name": "Mexico", "lang": ["es"], "tld": "mx", "gl": "mx", "tz": "America/Mexico_City"},
-    "BR": {"name": "Brazil", "lang": ["pt"], "tld": "br", "gl": "br", "tz": "America/Sao_Paulo"},
-    "CL": {"name": "Chile", "lang": ["es"], "tld": "cl", "gl": "cl", "tz": "America/Santiago"},
-    "GB": {"name": "United Kingdom", "lang": ["en"], "tld": "co.uk", "gl": "uk", "tz": "Europe/London"},
-    "DE": {"name": "Germany", "lang": ["de"], "tld": "de", "gl": "de", "tz": "Europe/Berlin"},
-    "AT": {"name": "Austria", "lang": ["de"], "tld": "at", "gl": "at", "tz": "Europe/Vienna"},
-    "CH": {"name": "Switzerland", "lang": ["de", "fr", "it"], "tld": "ch", "gl": "ch", "tz": "Europe/Zurich"},
-    "FR": {"name": "France", "lang": ["fr"], "tld": "fr", "gl": "fr", "tz": "Europe/Paris"},
-    "ES": {"name": "Spain", "lang": ["es"], "tld": "es", "gl": "es", "tz": "Europe/Madrid"},
-    "IT": {"name": "Italy", "lang": ["it"], "tld": "it", "gl": "it", "tz": "Europe/Rome"},
-    "NL": {"name": "Netherlands", "lang": ["nl"], "tld": "nl", "gl": "nl", "tz": "Europe/Amsterdam"},
-    "BE": {"name": "Belgium", "lang": ["nl", "fr"], "tld": "be", "gl": "be", "tz": "Europe/Brussels"},
-    "PL": {"name": "Poland", "lang": ["pl"], "tld": "pl", "gl": "pl", "tz": "Europe/Warsaw"},
-    "RU": {"name": "Russia", "lang": ["ru"], "tld": "ru", "gl": "ru", "tz": "Europe/Moscow", "region_risk": true},
-    "TR": {"name": "Turkey", "lang": ["tr"], "tld": "com.tr", "gl": "tr", "tz": "Europe/Istanbul"},
-    "AE": {"name": "United Arab Emirates", "lang": ["en", "ar"], "tld": "ae", "gl": "ae", "tz": "Asia/Dubai"},
-    "SA": {"name": "Saudi Arabia", "lang": ["ar", "en"], "tld": "sa", "gl": "sa", "tz": "Asia/Riyadh"},
-    "IR": {"name": "Iran", "lang": ["en"], "tld": "ir", "gl": "ir", "tz": "Asia/Tehran", "region_risk": true},
-    "EG": {"name": "Egypt", "lang": ["ar", "en"], "tld": "com.eg", "gl": "eg", "tz": "Africa/Cairo"},
-    "NG": {"name": "Nigeria", "lang": ["en"], "tld": "com.ng", "gl": "ng", "tz": "Africa/Lagos"},
-    "ZA": {"name": "South Africa", "lang": ["en"], "tld": "co.za", "gl": "za", "tz": "Africa/Johannesburg"},
-    "IN": {"name": "India", "lang": ["en"], "tld": "co.in", "gl": "in", "tz": "Asia/Kolkata"},
-    "JP": {"name": "Japan", "lang": ["ja"], "tld": "co.jp", "gl": "jp", "tz": "Asia/Tokyo"},
-    "KR": {"name": "South Korea", "lang": ["ko"], "tld": "co.kr", "gl": "kr", "tz": "Asia/Seoul"},
-    "VN": {"name": "Vietnam", "lang": ["vi"], "tld": "vn", "gl": "vn", "tz": "Asia/Ho_Chi_Minh"},
-    "TH": {"name": "Thailand", "lang": ["th"], "tld": "co.th", "gl": "th", "tz": "Asia/Bangkok"},
-    "ID": {"name": "Indonesia", "lang": ["id"], "tld": "co.id", "gl": "id", "tz": "Asia/Jakarta"},
-    "MY": {"name": "Malaysia", "lang": ["en"], "tld": "com.my", "gl": "my", "tz": "Asia/Kuala_Lumpur"},
-    "PH": {"name": "Philippines", "lang": ["en"], "tld": "com.ph", "gl": "ph", "tz": "Asia/Manila"},
-    "AU": {"name": "Australia", "lang": ["en"], "tld": "com.au", "gl": "au", "tz": "Australia/Sydney"},
-    "NZ": {"name": "New Zealand", "lang": ["en"], "tld": "co.nz", "gl": "nz", "tz": "Pacific/Auckland"}
+    "US": {
+      "name": "United States",
+      "lang": [
+        "en"
+      ],
+      "tld": "com",
+      "gl": "us",
+      "tz": "America/New_York"
+    },
+    "CA": {
+      "name": "Canada",
+      "lang": [
+        "en",
+        "fr"
+      ],
+      "tld": "ca",
+      "gl": "ca",
+      "tz": "America/Toronto"
+    },
+    "MX": {
+      "name": "Mexico",
+      "lang": [
+        "es"
+      ],
+      "tld": "mx",
+      "gl": "mx",
+      "tz": "America/Mexico_City"
+    },
+    "BR": {
+      "name": "Brazil",
+      "lang": [
+        "pt"
+      ],
+      "tld": "br",
+      "gl": "br",
+      "tz": "America/Sao_Paulo"
+    },
+    "CL": {
+      "name": "Chile",
+      "lang": [
+        "es"
+      ],
+      "tld": "cl",
+      "gl": "cl",
+      "tz": "America/Santiago"
+    },
+    "GB": {
+      "name": "United Kingdom",
+      "lang": [
+        "en"
+      ],
+      "tld": "co.uk",
+      "gl": "uk",
+      "tz": "Europe/London"
+    },
+    "DE": {
+      "name": "Germany",
+      "lang": [
+        "de"
+      ],
+      "tld": "de",
+      "gl": "de",
+      "tz": "Europe/Berlin"
+    },
+    "AT": {
+      "name": "Austria",
+      "lang": [
+        "de"
+      ],
+      "tld": "at",
+      "gl": "at",
+      "tz": "Europe/Vienna"
+    },
+    "CH": {
+      "name": "Switzerland",
+      "lang": [
+        "de",
+        "fr",
+        "it"
+      ],
+      "tld": "ch",
+      "gl": "ch",
+      "tz": "Europe/Zurich"
+    },
+    "FR": {
+      "name": "France",
+      "lang": [
+        "fr"
+      ],
+      "tld": "fr",
+      "gl": "fr",
+      "tz": "Europe/Paris"
+    },
+    "ES": {
+      "name": "Spain",
+      "lang": [
+        "es"
+      ],
+      "tld": "es",
+      "gl": "es",
+      "tz": "Europe/Madrid"
+    },
+    "IT": {
+      "name": "Italy",
+      "lang": [
+        "it"
+      ],
+      "tld": "it",
+      "gl": "it",
+      "tz": "Europe/Rome"
+    },
+    "NL": {
+      "name": "Netherlands",
+      "lang": [
+        "nl"
+      ],
+      "tld": "nl",
+      "gl": "nl",
+      "tz": "Europe/Amsterdam"
+    },
+    "BE": {
+      "name": "Belgium",
+      "lang": [
+        "nl",
+        "fr"
+      ],
+      "tld": "be",
+      "gl": "be",
+      "tz": "Europe/Brussels"
+    },
+    "PL": {
+      "name": "Poland",
+      "lang": [
+        "pl"
+      ],
+      "tld": "pl",
+      "gl": "pl",
+      "tz": "Europe/Warsaw"
+    },
+    "RU": {
+      "name": "Russia",
+      "lang": [
+        "ru"
+      ],
+      "tld": "ru",
+      "gl": "ru",
+      "tz": "Europe/Moscow",
+      "region_risk": true
+    },
+    "TR": {
+      "name": "Turkey",
+      "lang": [
+        "tr"
+      ],
+      "tld": "com.tr",
+      "gl": "tr",
+      "tz": "Europe/Istanbul"
+    },
+    "AE": {
+      "name": "United Arab Emirates",
+      "lang": [
+        "en",
+        "ar"
+      ],
+      "tld": "ae",
+      "gl": "ae",
+      "tz": "Asia/Dubai"
+    },
+    "SA": {
+      "name": "Saudi Arabia",
+      "lang": [
+        "ar",
+        "en"
+      ],
+      "tld": "sa",
+      "gl": "sa",
+      "tz": "Asia/Riyadh"
+    },
+    "IR": {
+      "name": "Iran",
+      "lang": [
+        "en"
+      ],
+      "tld": "ir",
+      "gl": "ir",
+      "tz": "Asia/Tehran",
+      "region_risk": true
+    },
+    "EG": {
+      "name": "Egypt",
+      "lang": [
+        "ar",
+        "en"
+      ],
+      "tld": "com.eg",
+      "gl": "eg",
+      "tz": "Africa/Cairo"
+    },
+    "NG": {
+      "name": "Nigeria",
+      "lang": [
+        "en"
+      ],
+      "tld": "com.ng",
+      "gl": "ng",
+      "tz": "Africa/Lagos"
+    },
+    "ZA": {
+      "name": "South Africa",
+      "lang": [
+        "en"
+      ],
+      "tld": "co.za",
+      "gl": "za",
+      "tz": "Africa/Johannesburg"
+    },
+    "IN": {
+      "name": "India",
+      "lang": [
+        "en"
+      ],
+      "tld": "co.in",
+      "gl": "in",
+      "tz": "Asia/Kolkata"
+    },
+    "JP": {
+      "name": "Japan",
+      "lang": [
+        "ja"
+      ],
+      "tld": "co.jp",
+      "gl": "jp",
+      "tz": "Asia/Tokyo"
+    },
+    "KR": {
+      "name": "South Korea",
+      "lang": [
+        "ko"
+      ],
+      "tld": "co.kr",
+      "gl": "kr",
+      "tz": "Asia/Seoul"
+    },
+    "VN": {
+      "name": "Vietnam",
+      "lang": [
+        "vi"
+      ],
+      "tld": "vn",
+      "gl": "vn",
+      "tz": "Asia/Ho_Chi_Minh"
+    },
+    "TH": {
+      "name": "Thailand",
+      "lang": [
+        "th"
+      ],
+      "tld": "co.th",
+      "gl": "th",
+      "tz": "Asia/Bangkok"
+    },
+    "ID": {
+      "name": "Indonesia",
+      "lang": [
+        "id"
+      ],
+      "tld": "co.id",
+      "gl": "id",
+      "tz": "Asia/Jakarta"
+    },
+    "MY": {
+      "name": "Malaysia",
+      "lang": [
+        "en"
+      ],
+      "tld": "com.my",
+      "gl": "my",
+      "tz": "Asia/Kuala_Lumpur"
+    },
+    "PH": {
+      "name": "Philippines",
+      "lang": [
+        "en"
+      ],
+      "tld": "com.ph",
+      "gl": "ph",
+      "tz": "Asia/Manila"
+    },
+    "AU": {
+      "name": "Australia",
+      "lang": [
+        "en"
+      ],
+      "tld": "com.au",
+      "gl": "au",
+      "tz": "Australia/Sydney"
+    },
+    "NZ": {
+      "name": "New Zealand",
+      "lang": [
+        "en"
+      ],
+      "tld": "co.nz",
+      "gl": "nz",
+      "tz": "Pacific/Auckland"
+    }
   },
-  "forwarder_markers": ["logistik", "logistics", "logistique", "logística", "freight", "shipping", "spedition", "cargo", "forwarding", "forwarder", "transitaire", "aduanas", "customs broker", "3pl", "courier"],
-  "marketplace_domains": ["amazon.", "ebay.", "alibaba.", "aliexpress.", "etsy.", "walmart.com", "temu.", "shein.", "mercadolibre.", "made-in-china.", "globalsources."],
-  "generic_inboxes": ["info", "sales", "office", "contact", "hello", "admin", "kontakt", "support", "service", "mail", "enquiries", "inquiry"]
+  "forwarder_markers": [
+    "logistik",
+    "logistics",
+    "logistique",
+    "logística",
+    "freight",
+    "shipping",
+    "spedition",
+    "cargo",
+    "forwarding",
+    "forwarder",
+    "transitaire",
+    "aduanas",
+    "customs broker",
+    "3pl",
+    "courier"
+  ],
+  "marketplace_domains": [
+    "amazon.",
+    "ebay.",
+    "alibaba.",
+    "aliexpress.",
+    "etsy.",
+    "walmart.com",
+    "temu.",
+    "shein.",
+    "mercadolibre.",
+    "made-in-china.",
+    "globalsources."
+  ],
+  "generic_inboxes": [
+    "achats",
+    "acquisti",
+    "admin",
+    "anfrage",
+    "anfragen",
+    "b2b",
+    "bestellung",
+    "bestellungen",
+    "bonjour",
+    "buero",
+    "büro",
+    "compras",
+    "contact",
+    "einkauf",
+    "enquiries",
+    "export",
+    "grosshandel",
+    "hallo",
+    "handel",
+    "hello",
+    "hola",
+    "import",
+    "info",
+    "inquiry",
+    "kontakt",
+    "kundenservice",
+    "mail",
+    "marketing",
+    "office",
+    "office1",
+    "order",
+    "orders",
+    "post",
+    "procurement",
+    "purchasing",
+    "reception",
+    "sales",
+    "service",
+    "shop",
+    "sourcing",
+    "support",
+    "team",
+    "vendite",
+    "ventas",
+    "verkauf",
+    "vertrieb",
+    "zentrale"
+  ]
 }

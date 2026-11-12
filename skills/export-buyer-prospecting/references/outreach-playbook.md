@@ -29,3 +29,10 @@ Day 0 → Day 3 → Day 7 → Day 14, then stop. Send Tue–Thu, 08:30–10:30 b
 - "Price?": give a range with Incoterm (FOB/CIF/DDP), MOQ, and lead time; ask target price and annual volume.
 - "Not now": ask when their next sourcing cycle is; set a reminder.
 - "We have a supplier": ask what they would improve with their current supplier; offer a sample for comparison.
+
+## Benchmarks to set expectations (2026 industry studies)
+- Average B2B cold email reply rates sit around 1–3.5% depending on how they are counted (Instantly 2026 report 3.43%, Woodpecker median 1.5%); positive replies are a fraction of that.
+- Signal-based emails (a real trigger: launch, expansion, trade show, hiring) report 5–18% replies versus 1–1.5% for template blasts (papaverAI, 2026).
+- In 4-email sequences, emails 2–4 bring most of the replies (B2B Data Index, 2026: 62%), so a single email understates results.
+- Morning sends (buyer time, 8 am–noon) replied best in Belkins' 2025 data.
+Treat these as direction, not promises. Judge the user's own numbers with `scripts/pipeline.py stats` after 30+ contacts.

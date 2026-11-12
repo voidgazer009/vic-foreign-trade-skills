@@ -24,7 +24,14 @@ def parse_local(s):
     return out
 
 
-def queries_for(code, cfg, langs, product, local):
+TITLES = {"de": ["Einkauf", "Einkaufsleiter"], "fr": ["acheteur", "responsable achats"], "es": ["jefe de compras", "comprador"],
+          "it": ["responsabile acquisti"], "pt": ["gerente de compras", "comprador"], "nl": ["inkoper"], "pl": ["kierownik zakupów"]}
+
+
+def queries_for(code, cfg, langs, product, local, extra=()):
+    lg0 = cfg["lang"][0]
+    short = local.get(lg0, product).split()[-1]  # one broad word: profiles rarely contain the full product name
+    local_titles = "".join(f' OR "{t}"' for t in TITLES.get(lg0, []))
     lines = [f"## {cfg['name']} ({code}) · languages: {', '.join(cfg['lang'])}", ""]
     tld = cfg["tld"]
     for lg in cfg["lang"]:
@@ -37,14 +44,16 @@ def queries_for(code, cfg, langs, product, local):
             lines.append(f'"{p}" {kw[role]} site:.{tld}')
         lines.append(f'"{p}" ("{kw["importer"]}" OR "{kw["distributor"]}") -alibaba -amazon -made-in-china')
         lines.append(f'"{p}" "{kw["supplier_wanted"]}"')
-        lines.append(f'"{p}" {kw["trade_show"]} {cfg["name"]}')
+        lines.append(f'{kw["trade_show"]} "{p}" site:.{tld}')
+        for term in extra:
+            lines.append(f'"{term}" "{p}" ({kw["wholesaler"]} OR {kw["distributor"]}) site:.{tld}')
         lines.append(f'intitle:"{kw["distributor"]}" "{p}" filetype:pdf')
         lines += ["```", ""]
     lines += [
         "LinkedIn (people search via Google):",
         "```",
-        f'site:linkedin.com/in ("purchasing manager" OR "category manager" OR "sourcing manager" OR "head of buying") "{product}" "{cfg["name"]}"',
-        f'site:linkedin.com/company "{product}" {langs[cfg["lang"][0]]["distributor"]} "{cfg["name"]}"',
+        f'site:linkedin.com/in ("purchasing manager" OR "category manager" OR "sourcing manager" OR "head of buying"{local_titles}) {short} "{cfg["name"]}"',
+        f'site:linkedin.com/company {short} {langs[cfg["lang"][0]]["distributor"]} "{cfg["name"]}"',
         "```",
         "",
     ]
@@ -58,6 +67,7 @@ def main():
     ap.add_argument("--product", required=True, help="product name in English")
     ap.add_argument("--countries", required=True, help="ISO-2 codes, comma separated, e.g. DE,FR,US")
     ap.add_argument("--local-product", default="", help='localized names, e.g. "de=Trinkflasche,fr=gourde"')
+    ap.add_argument("--extra-terms", default="", help='channel words in the buyer language, e.g. "Werbeartikel,Haushaltswaren"')
     ap.add_argument("--out", help="write markdown here (default: stdout)")
     a = ap.parse_args()
 
@@ -74,7 +84,7 @@ def main():
         if code not in countries:
             unknown.append(code)
             continue
-        out += queries_for(code, countries[code], langs, a.product, local)
+        out += queries_for(code, countries[code], langs, a.product, local, [t.strip() for t in a.extra_terms.split(",") if t.strip()])
     if unknown:
         out += [f"> Not in keyword table: {', '.join(unknown)}. Use English queries and add the country to assets/keywords-multilingual.json.", ""]
     missing_local = [lg for c in a.countries.upper().split(",") if c.strip() in countries

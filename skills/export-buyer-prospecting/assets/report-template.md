@@ -11,8 +11,14 @@
 
 Dropped: {n} tier X ({reasons}).
 
+## Sender domain
+{check_domain.py result: SPF / DKIM / DMARC / MX, warm-up stage}
+
 ## Outreach for {top lead}
 {Email 1–4}
+
+## Today's actions
+{pipeline.py today output}
 
 ## Next steps
 1. {e.g. send Email 1 Tue 09:00 buyer time}

@@ -6,30 +6,51 @@ Usage:
 
 Input columns (see assets/leads-template.csv):
   company,website,country,buyer_type,employees,products_match,contact_name,contact_title,email,source,notes
-  buyer_type: importer|distributor|wholesaler|brand_owner|retailer|ecommerce_seller (free text is mapped)
+  buyer_type: importer|distributor|promo_distributor|wholesaler|brand_owner|retailer|ecommerce_seller|manufacturer
+              (free text in many languages is mapped, e.g. Großhändler, Werbeartikel, mayorista)
   products_match: yes|partial|no (or empty)
 Output: same rows + score, tier (A/B/C/X), flags. Prints a summary.
 Standard library only.
 """
-import argparse, csv, json, re, sys
+import argparse, csv, json, re, sys, unicodedata
 from pathlib import Path
 
 ASSETS = Path(__file__).resolve().parent.parent / "assets"
+# Matched after folding umlauts/accents (ä→a, ß→ss). "~word" = whole word only; others match at a word start.
 TYPE_ALIASES = {
-    "importer": ["import", "importeur", "importateur", "importador", "importatore", "импорт"],
-    "distributor": ["distribut", "dystrybut", "дистриб", "agent", "代理"],
-    "wholesaler": ["wholesal", "großhand", "grosshand", "grossist", "mayorist", "atacad", "groothandel", "hurtown", "toptan", "卸"],
-    "brand_owner": ["brand", "oem", "private label", "marke"],
-    "retailer": ["retail", "chain", "store", "supermarket", "einzelhand", "detaillant"],
-    "ecommerce_seller": ["amazon", "ecommerce", "e-commerce", "online shop", "shopify", "seller"],
+    "importer": ["import", "importeur", "importateur", "importador", "importatore", "импорт", "进口"],
+    "promo_distributor": ["werbeartikel", "werbemittel", "promotional", "promo products", "~promo", "merchandising", "objets publicitaires",
+                          "articulos promocionales", "gadget promozionali", "relatiegeschenk", "giveaway", "corporate gift"],
+    "distributor": ["distribut", "dystrybut", "дистриб", "~agent", "~agency", "代理", "vertrieb", "lieferant", "handler", "haendler", "~dealer"],
+    "wholesaler": ["wholesal", "grosshand", "grossist", "mayorist", "atacad", "groothandel", "hurtown", "toptan", "卸", "批发"],
+    "brand_owner": ["~brand", "~brand owner", "~oem", "private label", "~marke", "eigenmarke"],
+    "manufacturer": ["hersteller", "manufactur", "fabricant", "fabricante", "produttore", "producent", "~factory", "工厂"],
+    "retailer": ["retail", "~chain", "~store", "supermarket", "einzelhand", "fachhandel", "detaillant", "minorista"],
+    "ecommerce_seller": ["amazon", "ecommerce", "e-commerce", "online shop", "onlineshop", "shopify", "~seller"],
 }
+CLOSEOUT = ["restposten", "sonderposten", "liquidation", "closeout", "close-out", "1-euro", "1 euro", "overstock", "stock lot",
+            "stocklot", "destockage", "saldi", "surplus"]
+
+
+def fold(s):
+    s = (s or "").lower()
+    for a, b in (("ä", "a"), ("ö", "o"), ("ü", "u"), ("ß", "ss")):
+        s = s.replace(a, b)
+    return unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode() or s
+
+
+def has_alias(text, alias):
+    if alias.startswith("~"):
+        return re.search(r"(?<![a-z])" + re.escape(alias[1:]) + r"(?![a-z])", text) is not None
+    return re.search(r"(?<![a-z])" + re.escape(alias), text) is not None
 TITLE_GOOD = re.compile(r"(purchas|buyer|buying|sourcing|procure|category|einkauf|achat|compra|acquist|inkoop|owner|founder|ceo|managing director|geschäftsführer|gérant|director)", re.I)
 
 
 def norm_type(s):
-    s = (s or "").lower()
+    raw = (s or "").lower().strip()
+    t = fold(raw)
     for key, al in TYPE_ALIASES.items():
-        if s == key or any(a in s for a in al):
+        if t == key or any(has_alias(t, fold(a)) or (not a.isascii() and a in raw) for a in al):
             return key
     return ""
 
@@ -74,7 +95,15 @@ def score_row(r, icp, kw, seen):
         flags.append("country unknown")
 
     bt = norm_type(r.get("buyer_type"))
-    bt_points = icp["buyer_types"].get(bt, 0)
+    bt_points = icp["buyer_types"].get(bt, {"promo_distributor": 26, "manufacturer": 8}.get(bt, 0))
+    if bt == "manufacturer" or (bt and any(has_alias(fold(r.get("buyer_type", "")), fold(x)) for x in TYPE_ALIASES["manufacturer"])):
+        flags.append("manufacturer: possible competitor; check whether they make this product or buy it (OEM)")
+    text_all = fold(" ".join([name, site, r.get("buyer_type", ""), r.get("notes", "")]))
+    markers = icp.get("closeout_markers", CLOSEOUT)
+    if any(fold(m) in text_all for m in markers):
+        bt_points *= 0.3
+        cap_b = True
+        flags.append("closeout/discount buyer: price-driven, poor fit for a factory (capped at tier B)")
     top = max(icp["buyer_types"].values()) or 1
     s += w["buyer_type"] * bt_points / top
     if not bt:
@@ -115,7 +144,7 @@ def score_row(r, icp, kw, seen):
         else:
             local, dom = email.split("@", 1)
             webmail = any(dom.startswith(f) for f in ("gmail.", "yahoo.", "hotmail.", "outlook.", "qq.", "163.", "126.", "mail.ru", "yandex."))
-            if local in kw["generic_inboxes"]:
+            if local in kw["generic_inboxes"] or re.sub(r"[\d._-]+$", "", local) in kw["generic_inboxes"]:
                 s += w["personal_email"] * 0.3
                 flags.append("generic inbox")
             elif webmail:

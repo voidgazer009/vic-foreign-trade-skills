@@ -1,11 +1,97 @@
 {
   "skill_name": "export-buyer-prospecting",
   "evals": [
-    {"id": 1, "prompt": "我们是宁波的不锈钢保温杯工厂，想开发德国的客户，帮我找客户并写开发信", "expected_output": "Asks at most for missing product/HS detail or proceeds with stated assumptions; builds DE queries in German (Importeur, Großhändler); warns about UWG §7 consent for DE; delivers ICP, tiered list, and a 4-touch sequence where email 1 passes lint_outreach.py", "should_trigger": true, "files": []},
-    {"id": 2, "prompt": "Score this lead list for our insulated bottles, targets DE FR US", "expected_output": "Runs score_leads.py; Example Logistik is X (forwarder), Amazon storefront is X (marketplace), the dup row is X (duplicate), Moscow Import is X (not a target country); Example Trading is tier A", "should_trigger": true, "files": ["evals/files/sample-leads.csv"]},
-    {"id": 3, "prompt": "帮我检查一下这封外贸开发信能不能发", "expected_output": "Runs lint_outreach.py on email-bad.txt: fails on spam phrases, attachment, Dear Sir/Madam, missing opt-out and address; rewrites it to pass", "should_trigger": true, "files": ["evals/files/email-bad.txt"]},
-    {"id": 4, "prompt": "Find me importers of LED panel lights in Mexico and Brazil", "expected_output": "Queries in Spanish (importador, distribuidor) for MX and Portuguese (importador, atacadista) for BR, suggests localized product names", "should_trigger": true, "files": []},
-    {"id": 5, "prompt": "帮我算一下从宁波到汉堡的海运费", "expected_output": "Does not trigger: freight quoting belongs to a logistics skill", "should_trigger": false, "files": []},
-    {"id": 6, "prompt": "Translate this product description into German", "expected_output": "Does not trigger: plain translation", "should_trigger": false, "files": []}
+    {
+      "id": 1,
+      "prompt": "我们是宁波的不锈钢保温杯工厂，想开发德国的客户，帮我找客户并写开发信",
+      "expected_output": "Asks at most for missing product/HS detail or proceeds with stated assumptions; builds DE queries in German (Importeur, Großhändler); warns about UWG §7 consent for DE; delivers ICP, tiered list, and a 4-touch sequence where email 1 passes lint_outreach.py",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "Score this lead list for our insulated bottles, targets DE FR US",
+      "expected_output": "Runs score_leads.py; Example Logistik is X (forwarder), Amazon storefront is X (marketplace), the dup row is X (duplicate), Moscow Import is X (not a target country); Example Trading is tier A",
+      "should_trigger": true,
+      "files": [
+        "evals/files/sample-leads.csv"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "帮我检查一下这封外贸开发信能不能发",
+      "expected_output": "Runs lint_outreach.py on email-bad.txt: fails on spam phrases, attachment, Dear Sir/Madam, missing opt-out and address; rewrites it to pass",
+      "should_trigger": true,
+      "files": [
+        "evals/files/email-bad.txt"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Find me importers of LED panel lights in Mexico and Brazil",
+      "expected_output": "Queries in Spanish (importador, distribuidor) for MX and Portuguese (importador, atacadista) for BR, suggests localized product names",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 5,
+      "prompt": "我的开发信发了两个月几乎没人回，是不是进垃圾箱了？我用的是公司邮箱 sales@mycompany.com",
+      "expected_output": "Starts at step 6: runs check_domain.py sender mycompany.com (or gives manual MXToolbox steps offline), explains SPF/DKIM/DMARC fixes, recommends a separate outreach domain and the warm-up table, sets 2% bounce / 0.3% complaint red lines, only then reviews copy",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 6,
+      "prompt": "I found the purchasing manager Jürgen Müller at firm-gmbh.de on LinkedIn, and their press contact is a.schmidt@firm-gmbh.de (Anna Schmidt). What's his email?",
+      "expected_output": "Runs find_contacts.py email with --known; top guess j.mueller@firm-gmbh.de (umlaut transliterated); clearly marks it unverified and explains how to verify before sending",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 7,
+      "prompt": "客户报价后两周没回我了，怎么跟进？",
+      "expected_output": "Uses reply-playbook quote-silence sequence (day 2/7/14/21), each touch adds new value, no bare 'any update', suggests switching channel, logs in pipeline.py",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 8,
+      "prompt": "帮我写一条领英加好友的话术，对方是西班牙的灯具分销商采购经理",
+      "expected_output": "Short note about them (≤200 chars), no pitch or links, passes lint_outreach.py --channel linkedin; suggests Spanish or English based on their profile",
+      "should_trigger": true,
+      "files": [
+        "evals/files/linkedin-good.txt"
+      ]
+    },
+    {
+      "id": 9,
+      "prompt": "Track my follow-ups: I emailed Example Trading today and Maison Exemple replied asking for a catalogue",
+      "expected_output": "Uses pipeline.py add/log/today; Maison shows as replied with answer-within-4-hours action; Example Trading next touch in 3 days",
+      "should_trigger": true,
+      "files": [
+        "evals/files/sample-leads.csv"
+      ]
+    },
+    {
+      "id": 10,
+      "prompt": "帮我算一下从宁波到汉堡的海运费",
+      "expected_output": "Does not trigger: freight quoting belongs to a logistics skill",
+      "should_trigger": false,
+      "files": []
+    },
+    {
+      "id": 11,
+      "prompt": "Translate this product description into German",
+      "expected_output": "Does not trigger: plain translation",
+      "should_trigger": false,
+      "files": []
+    },
+    {
+      "id": 12,
+      "prompt": "Write a LinkedIn post announcing our new factory",
+      "expected_output": "Does not trigger: social media content, not buyer prospecting",
+      "should_trigger": false,
+      "files": []
+    }
   ]
 }

@@ -4,7 +4,7 @@ One skill at a time. A skill moves to the next only after it is released and ite
 
 | # | Skill | 作用 | Status |
 |---|---|---|---|
-| 1 | export-buyer-prospecting | 开发客户：找买家、评分、开发信 | ✅ v1.0.0 · iterating |
+| 1 | export-buyer-prospecting | 开发客户：找买家、评分、开发信 | ✅ v2.0.0 · iterating |
 | 2 | export-market-research | 市场调研：目标国需求、竞品、价格带、准入认证 | Planned |
 | 3 | inquiry-reply-quotation | 询盘回复与报价单（FOB/CIF/DDP、MOQ、交期） | Planned |
 | 4 | buyer-background-check | 客户背调：公司真伪、规模、风险、制裁筛查 | Planned |

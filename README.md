@@ -8,7 +8,7 @@ Every skill is audited before release: official `skills-ref validate` + the Vic 
 
 | Skill | 作用 | Version | Status |
 |---|---|---|---|
-| [export-buyer-prospecting](skills/export-buyer-prospecting) | 开发海外客户：本地语言搜索词 → 线索评分分级（剔除货代/平台/重复）→ 合规开发信序列 + 自动检查 | 1.0.0 | ✅ Released |
+| [export-buyer-prospecting](skills/export-buyer-prospecting) | 开发海外客户全流程：选市场 → 本地语言找买家 → 评分剔除货代 → 找决策人邮箱 → 邮箱送达体检 → 开发信/领英/WhatsApp 话术检查 → 回复与报价后跟进 → 跟进看板。解决 15 个外贸人真实痛点（[调研](docs/pain-points-research.md)） | 2.0.0 | ✅ Released |
 
 Coming next, one at a time, each polished before the next: see [ROADMAP.md](ROADMAP.md).
 

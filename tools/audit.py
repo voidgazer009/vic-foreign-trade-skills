@@ -49,7 +49,8 @@ std = set(sys.stdlib_module_names)
 for f in (d/"scripts").rglob("*.py") if (d/"scripts").exists() else []:
     src = f.read_text(encoding="utf-8")
     mods = {m.split(".")[0] for m in re.findall(r"^\s*(?:import|from)\s+([\w\.]+)", src, re.M)}
-    ext = sorted(m for m in mods - std if m != "__future__")
+    local_mods = {p.stem for p in f.parent.glob("*.py")}
+    ext = sorted(m for m in mods - std - local_mods if m != "__future__")
     chk(not ext, f"{f.name} uses stdlib only" + (f" (external: {ext})" if ext else ""))
     rr = subprocess.run([sys.executable, "-B", str(f), "--help"], capture_output=True, text=True, cwd=d)
     chk(rr.returncode == 0, f"{f.name} --help runs")

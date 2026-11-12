@@ -1,8 +1,21 @@
 {
   "product": "stainless steel insulated water bottle",
   "hs_code": "9617.00",
-  "target_countries": ["DE", "FR", "US"],
-  "buyer_types": {"importer": 30, "distributor": 30, "wholesaler": 24, "brand_owner": 22, "retailer": 15, "ecommerce_seller": 8},
+  "target_countries": [
+    "DE",
+    "FR",
+    "US"
+  ],
+  "buyer_types": {
+    "importer": 30,
+    "distributor": 30,
+    "promo_distributor": 26,
+    "wholesaler": 24,
+    "brand_owner": 22,
+    "retailer": 15,
+    "manufacturer": 8,
+    "ecommerce_seller": 8
+  },
   "employees_min": 10,
   "employees_max": 500,
   "weights": {
@@ -13,6 +26,21 @@
     "personal_email": 10,
     "country_match": 5
   },
-  "tier_thresholds": {"A": 70, "B": 45},
-  "exclude_keywords": []
+  "tier_thresholds": {
+    "A": 70,
+    "B": 45
+  },
+  "exclude_keywords": [],
+  "closeout_markers": [
+    "restposten",
+    "sonderposten",
+    "liquidation",
+    "closeout",
+    "1-euro",
+    "overstock",
+    "stock lot",
+    "destockage",
+    "saldi",
+    "surplus"
+  ]
 }
