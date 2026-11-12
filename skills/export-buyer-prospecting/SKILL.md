@@ -1,17 +1,17 @@
 ---
 name: export-buyer-prospecting
-description: End-to-end overseas B2B customer development for exporters and manufacturers. Picks target markets, finds importers, distributors and wholesalers with local-language searches, scores leads and drops forwarders and dead leads, finds the decision-maker and their email pattern, checks email deliverability (SPF, DKIM, DMARC, warm-up), writes and lints cold emails plus LinkedIn and WhatsApp messages, handles replies and silent buyers after a quote, and tracks follow-ups. Use when the user wants to 开发客户, 找客户, 找海外买家, 写开发信, 开发信没回复, 开发信进垃圾箱, 找决策人邮箱, 报价后客户不回, 领英开发, WhatsApp 开发, or to find, qualify and contact foreign buyers.
+description: End-to-end overseas B2B customer development for exporters and manufacturers, from finding buyers to a safely paid first order. Picks markets, finds importers and distributors with local-language searches, scores leads, finds decision-makers and email patterns, checks deliverability, writes and lints cold emails, LinkedIn and WhatsApp messages, triages price-only inquiries, decides sample policy, lints quotations and Incoterms, follows up trade-show leads, verifies buyers, guards payment terms and email-hacking scams, estimates US landed cost under tariffs, and tracks follow-ups. Use when the user wants to 开发客户, 找客户, 找海外买家, 写开发信, 开发信没回复, 进垃圾箱, 找决策人, 报价后客户不回, 询盘套价, 要免费样品, 报价单, 展会客户跟进, 客户背调, 改付款方式, 邮件被黑改账户, 美国关税, or to find, qualify, contact and convert foreign buyers.
 license: MIT. See LICENSE.txt
 compatibility: Works with any Agent Skills compatible agent. Scripts need Python 3.9+ standard library only. Web search and internet access improve results but are optional.
 metadata:
   author: Vic (voidgazer009)
-  version: "2.0.0"
+  version: "3.0.0"
   collection: vic-foreign-trade-skills
 ---
 
 # Export Buyer Prospecting
 
-Turn "I make X, find me buyers in Y" into a ranked list of real importers, the right person at each, messages that land in the inbox and get replies, and a follow-up system that never forgets a lead. Reply to the user in the language they write in.
+Turn "I make X, find me buyers in Y" into a ranked list of real importers, the right person at each, messages that land in the inbox and get replies, and a follow-up system that never forgets a lead. Then carry the replies to a first order without losing margin or money: triage inquiries, sample policy, clean quotes, buyer checks and payment safety. Reply to the user in the language they write in.
 
 ## Start here: match the user's problem
 
@@ -26,6 +26,12 @@ Turn "I make X, find me buyers in Y" into a ranked list of real importers, the r
 | "LinkedIn or WhatsApp outreach" | Step 7 with `--channel` |
 | "They replied" / "silent after my quote" | Step 8 |
 | "I lose track of follow-ups" | Step 9 |
+| "Is this inquiry real? / 询盘套价 / only asks price" | Step 10 |
+| "They want free samples" | Step 11 |
+| "Check my quotation / PI / which Incoterm" | Step 12 |
+| "I have trade-show cards" | Step 9 `import-show`, then `assets/show-followup-template.md` |
+| "Is this buyer real? / they want B/L copy or open account / bank details changed" | Step 13 |
+| "US tariffs / buyer says too expensive because of duty" | Step 12 with `scripts/landed_cost.py` |
 
 ## Workflow
 
@@ -41,6 +47,7 @@ Copy this checklist and tick it off:
 - [ ] 7. Write and lint the outreach
 - [ ] 8. Handle replies
 - [ ] 9. Track follow-ups and deliver
+- [ ] 10–13. Deal stage, when a buyer engages: triage, samples, quote, verify and protect payment
 
 ### 0. Choose markets
 If the user has no target country, read `references/market-selection.md` and propose 2–3 countries with a short table. Never target a whole continent.
@@ -80,7 +87,7 @@ Write what you found (`contact_name`, `contact_title`, `email`, `buyer_type`, `n
 python3 scripts/check_domain.py sender usercompany.com
 python3 scripts/check_domain.py leads scored.csv
 ```
-Fix every ✗ before any cold email goes out. If the domain or mailbox is new, give the user the warm-up table from `references/deliverability.md`. Most "no replies" are spam-folder problems, not copy problems.
+Fix every ✗ before any cold email goes out. If the domain does not exist (NXDOMAIN), the user needs a separate outreach domain registered and warmed up before step 7 sends anything. If the domain or mailbox is new, give the user the warm-up table from `references/deliverability.md`. Most "no replies" are spam-folder problems, not copy problems.
 
 ### 7. Write and lint the outreach
 Before writing, ask the user for what only they know, in one message: one proof point (certification, MOQ, a reference customer or market), and the sender's name, title, company and postal address for the signature. Never invent certifications, MOQs, customers or addresses; leave a clear `{placeholder}` until the user confirms.
@@ -93,7 +100,7 @@ Language: if the buyer's website has no English version, write in their language
 python3 scripts/lint_outreach.py email1.txt --lead-country DE --company "Example Trading"   # --touch 2..4 for follow-ups
 python3 scripts/lint_outreach.py note.txt --channel linkedin
 ```
-Fix every ✗ and re-run until PASS. Show the user the ⚠ claims list so they confirm each claim is true. Check `references/compliance.md` before sending to the EU, UK, Canada, Australia or the US.
+Fix every ✗ and re-run until PASS. While the signature still has `{placeholders}` waiting for the user, add `--draft` (same for `lint_quote.py`): it ends in DRAFT PASS, and the final check before sending runs without it. Show the user the ⚠ claims list so they confirm each claim is true. Check `references/compliance.md` before sending to the EU, UK, Canada, Australia or the US.
 
 ### 8. Handle replies
 Classify each reply with `assets/reply-playbook.md` and answer within 4 working hours. If the user does not say which lead replied, ask before logging. For silent buyers after a quote use its day 2/7/14/21 sequence. Never send "Any update?" alone.
@@ -107,7 +114,38 @@ python3 scripts/pipeline.py stats
 ```
 Log `sent` again after answering a reply; replied leads move to a post-reply track (day 3/8/15), not the cold sequence. `today` lists every due action with the send window on both the buyer's and the user's clock (pass the user's own zone); `stats` diagnoses where the funnel breaks (bounces, spam, copy, wrong person) after 30+ contacts.
 
+US, Canada, Australia, Brazil and Mexico span several time zones: fill `state` (US) or `tz` in the leads CSV so send windows are right. When the window falls in the user's night, tell them to use scheduled send. Trade-show cards: `pipeline.py import-show cards.csv --show "Canton Fair 140"` grades them A (due within 48 h), B (3 days), C (quarterly). Other events: `sample` (day 3/7/21 checks), `incumbent` ("we have a supplier", 60-day re-touch, `--note` the trigger to watch), `terms` (buyer asks to change payment terms: flagged red). `stats` splits results by lead source.
+
 Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier A first), the sender-domain status, the sequence for the top lead, and today's actions.
+
+## Deal stage (steps 10–13)
+
+### 10. Triage inbound inquiries
+```bash
+python3 scripts/triage_inquiry.py inquiry.txt --from buyer@domain.com --company "Claimed Co Ltd"
+```
+VERIFY → the sender's domain imitates the company it names: contact the company through its real website before anything else. QUOTE → step 12. ASK-FIRST → send its 5-field ask-back with a price band only. ARCHIVE → one polite line, no prices. Never send a full price list to an unqualified lead. More in `references/inquiry-to-order.md` (platform RFQs, social DMs, customs data, China+1).
+
+### 11. Samples
+```bash
+python3 scripts/sample_policy.py --custom catalog --buyer importer --annual-usd 50000 --sample-cost-usd 30 --verified yes --country US
+```
+Use the sentence it prints, agree the spec with `assets/sample-confirmation-sheet.md`, then log `sample`.
+
+### 12. Quote
+Fill `assets/quote-sheet-template.md`, then:
+```bash
+python3 scripts/lint_quote.py quote.txt --mode sea --dest US
+python3 scripts/landed_cost.py --fob 1.32 --qty 3000 --freight 600 --duty MFN=4.6+0.8c --duty S232=25 --duty S301=7.5   # US buyers
+```
+Fix every ✗. Duty rates come from the official tariff database, with the date checked. Read `references/tariff-landscape.md` before any US quote: check Section 232 first (steel, aluminium, copper and derivatives such as knives and kitchen utensils), because 232 goods skip the 12.5% forced-labor tariff. Say the reference's "last verified" date. On "too expensive", follow the reply playbook: compare specs, trade instead of discount.
+
+### 13. Verify the buyer and protect the payment
+```bash
+python3 scripts/verify_buyer.py --company "Example Trading GmbH" --country DE --domain example-trading.de --vat DE123456789 --terms bl-copy
+python3 scripts/check_lookalike.py --pipeline pipeline.csv --sender accounts@examp1e-trading.de
+```
+Run `verify_buyer.py` before free samples, credit terms or a big first order; depth grows with risk (`--terms`). Run `check_lookalike.py` on every mail that mentions bank details, payment or document release. Follow `references/payment-and-fraud.md` when the buyer asks to change terms.
 
 ## Example
 
@@ -131,7 +169,7 @@ Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier 
 >
 > Would a sample of our two best sellers for the German market be useful?
 >
-> Li Wei, Sales Manager, Shinetime Housewares, No. 88 Xingning Rd, Ningbo 315000, China
+> {Your name}, {Title}, {Company}, {Street address}, Ningbo, China
 > Reply "no thanks" and I won't write again.
 
 ## Gotchas
@@ -140,7 +178,7 @@ Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier 
 - **Generic inboxes** (info@, sales@, office@) convert poorly. Keep them only when no named buyer is findable; the scorer penalises them.
 - **Germany requires prior consent for email marketing, even B2B** (UWG §7). For DE/AT, prefer LinkedIn or phone for the first touch, or send a strictly individual, relevant inquiry; tell the user this risk plainly.
 - **First email: no attachments, no more than one link, plain text, under 120 words.** Catalog PDFs on first touch land in spam and get no reply.
-- **Never claim certifications, factory size, or clients the user did not state.** Ask instead.
+- **Never claim certifications, factory size, or clients the user did not state, and never invent the sender's name, company or address.** Ask instead, or leave a `{placeholder}` that `lint_outreach.py` will flag.
 - **Send in the buyer's local morning**, Tuesday to Thursday. Convert time zones; do not use the user's clock.
 - **Most "no reply" problems are deliverability.** Check the sender domain (step 6) before rewriting copy, and never cold-email from QQ, 163 or Gmail.
 - **Keep cold email off the main company domain.** A spam reputation hit there puts quotes, PIs and payment mails to existing customers in spam too.
@@ -148,6 +186,11 @@ Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier 
 - **WhatsApp only after the buyer gave the number or wrote first.** Unsolicited messages get the number blocked and reported.
 - **Fake-buyer signals:** free webmail with a big urgent order, requests for free samples plus courier to a third country, pressure to pay "registration" or "certificate" fees, changed bank or ship-to details. Pause and verify before spending money.
 - **Check sanctions lists** (OFAC SDN, EU, UN) before engaging buyers in high-risk countries; the scorer flags these countries but cannot screen names.
+- **Bank details never change by email.** Any change, either direction, is confirmed by phone on a number you already had. Hackers reply from look-alike domains in the middle of real threads.
+- **The first oral request to change payment terms is the warning sign.** Never agree to "ship first, pay against B/L copy" in the chat; follow `references/payment-and-fraud.md`.
+- **"FDA approved" is false for food-contact goods.** FDA does not approve or certify kitchenware; say "tested to FDA 21 CFR food-contact requirements, report available".
+- **Tariff numbers expire.** Never quote a US duty rate from memory; use the dated reference and tell the user to recheck it. Prefer FOB or DAP over DDP while duties move.
+- **Most "best price" inquiries are honest benchmarking.** Answer fast and politely; protect the price list, not your pride.
 - Avoid "We are a professional manufacturer with 20 years of experience" and "Dear Sir/Madam": they are the most common spam openers in this industry.
 
 ## Edge cases
@@ -157,4 +200,5 @@ Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier 
 - **Fewer than 5 tier-A leads:** widen buyer types or neighbouring countries (DE → AT, CH, NL) and say so.
 - **User sells via Alibaba/Made-in-China only:** apply steps 4, 7 and 8 to RFQ buyers; RFQ replies have the same rules, and speed wins.
 - **Industrial or technical product:** use `--industrial` in step 5 and write separately to the technical and purchasing contacts.
-- **User asks for freight costs, quotations, contracts or payment terms:** outside this skill; answer briefly or use a dedicated skill.
+- **User asks for freight rates, contracts or legal advice:** outside this skill; give the checklist from the references and suggest a forwarder, bank or lawyer.
+- **Buyer is in a sanctioned or high-risk country, or wants goods shipped to a third country:** stop at step 13 and screen names before anything is sent.

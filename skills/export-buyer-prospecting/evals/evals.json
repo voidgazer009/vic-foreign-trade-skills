@@ -92,6 +92,61 @@
       "expected_output": "Does not trigger: social media content, not buyer prospecting",
       "should_trigger": false,
       "files": []
+    },
+    {
+      "id": 13,
+      "prompt": "阿里国际站来了这个询盘，要不要报价？",
+      "expected_output": "Runs triage_inquiry.py on evals/files/inquiry-bad.txt with the sender; verdict ARCHIVE; no price list sent; polite one-liner offered",
+      "should_trigger": true,
+      "files": [
+        "evals/files/inquiry-bad.txt"
+      ]
+    },
+    {
+      "id": 14,
+      "prompt": "This UK buyer asked for a quote, is it serious?",
+      "expected_output": "Runs triage_inquiry.py on inquiry-good.txt; verdict QUOTE; drafts a quote from quote-sheet-template.md and lints it with lint_quote.py until PASS; recommends verify_buyer.py before credit terms",
+      "should_trigger": true,
+      "files": [
+        "evals/files/inquiry-good.txt"
+      ]
+    },
+    {
+      "id": 15,
+      "prompt": "帮我检查一下这个报价单有没有问题",
+      "expected_output": "Runs lint_quote.py on quote-bad.txt; reports FOB by air (use FCA/CPT/CIP), missing port, validity, MOQ, lead time, ambiguous 30/70; gives a corrected version that passes",
+      "should_trigger": true,
+      "files": [
+        "evals/files/quote-bad.txt"
+      ]
+    },
+    {
+      "id": 16,
+      "prompt": "美国客户要免费样品，是个进口商，一年大概8万美金的量",
+      "expected_output": "Asks or assumes customisation level and verification; runs sample_policy.py with --country US; mentions de minimis suspension so samples pay duty; gives the sentence to send and the sample confirmation sheet; logs sample",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 17,
+      "prompt": "客户突然说要改成见提单副本付尾款，还说银行账户换了",
+      "expected_output": "Treats as high risk: no agreement in thread; runs check_lookalike.py on the sender; verify_buyer.py --terms bl-copy; follows payment-and-fraud.md checklist; phone confirmation on a known number; logs terms",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 18,
+      "prompt": "广交会收了30张名片，怎么跟进？",
+      "expected_output": "Uses pipeline.py import-show with the cards CSV, A/B/C grading, A within 48h; drafts the 4-fact first email from show-followup-template.md",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 19,
+      "prompt": "Help me calculate my monthly freight invoice reconciliation",
+      "expected_output": "Does not trigger: logistics accounting, not buyer development",
+      "should_trigger": false,
+      "files": []
     }
   ]
 }

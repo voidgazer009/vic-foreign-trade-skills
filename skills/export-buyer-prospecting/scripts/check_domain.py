@@ -75,6 +75,7 @@ def check_sender(domain, selector=None):
         n = spf_lookups(spf[0])
         rows.append((n <= 10, f"SPF found ({n} top-level lookups; total incl. nested must stay ≤ 10): {spf[0][:120]}"))
         rows.append((not spf[0].rstrip().endswith("+all"), "SPF does not end in +all"))
+        rows.append((not re.search(r"[?]all\s*$", spf[0]), "SPF does not end in ?all (neutral: gives receivers no protection; use ~all or -all)"))
     elif len(spf) > 1:
         rows.append((False, f"{len(spf)} SPF records: must be exactly one, merge them"))
     else:

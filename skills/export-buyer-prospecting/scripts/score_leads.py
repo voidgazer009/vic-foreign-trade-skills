@@ -43,7 +43,7 @@ def has_alias(text, alias):
     if alias.startswith("~"):
         return re.search(r"(?<![a-z])" + re.escape(alias[1:]) + r"(?![a-z])", text) is not None
     return re.search(r"(?<![a-z])" + re.escape(alias), text) is not None
-TITLE_GOOD = re.compile(r"(purchas|buyer|buying|sourcing|procure|category|einkauf|achat|compra|acquist|inkoop|owner|founder|ceo|managing director|geschäftsführer|gérant|director)", re.I)
+TITLE_GOOD = re.compile(r"(purchas|buyer|buying|sourcing|procure|category|einkauf|achat|compra|acquist|inkoop|owner|founder|co-founder|ceo|president|principal|proprietor|general manager|managing director|geschäftsführer|inhaber|gérant|director|vp|vice president|merchandis|product manager|import)", re.I)
 
 
 def norm_type(s):
@@ -56,10 +56,13 @@ def norm_type(s):
 
 
 def to_int(s):
-    m = re.search(r"\d[\d,\.]*", s or "")
-    if not m:
+    """'45' -> 45, '1,200' -> 1200, '11-50' or '11–50' -> 30 (midpoint of a LinkedIn-style range), '500+' -> 500."""
+    nums = [int(re.sub(r"[,\.]", "", x)) for x in re.findall(r"\d[\d,\.]*", s or "")]
+    if not nums:
         return None
-    return int(re.sub(r"[,\.]", "", m.group(0)))
+    if len(nums) >= 2 and re.search(r"\d\s*[-–—~to]+\s*\d", s):
+        return (nums[0] + nums[1]) // 2
+    return nums[0]
 
 
 def score_row(r, icp, kw, seen):
@@ -143,13 +146,21 @@ def score_row(r, icp, kw, seen):
             flags.append("email malformed")
         else:
             local, dom = email.split("@", 1)
-            webmail = any(dom.startswith(f) for f in ("gmail.", "yahoo.", "hotmail.", "outlook.", "qq.", "163.", "126.", "mail.ru", "yandex."))
-            if local in kw["generic_inboxes"] or re.sub(r"[\d._-]+$", "", local) in kw["generic_inboxes"]:
+            webmail = any(dom.startswith(f) for f in ("gmail.", "googlemail.", "yahoo.", "ymail.", "hotmail.", "outlook.", "live.", "msn.", "aol.", "icloud.", "me.com",
+                                                     "qq.", "163.", "126.", "sina.", "mail.ru", "yandex.", "gmx.", "web.de", "t-online.", "proton", "zoho.",
+                                                     "comcast.", "optonline.", "verizon.", "att.net", "sbcglobal.", "bellsouth.", "cox.", "charter.", "earthlink.",
+                                                     "orange.fr", "free.fr", "wanadoo.", "libero.", "btinternet.", "sky.com", "bigpond."))
+            site = re.sub(r"^(https?://)?(www\.)?", "", (r.get("website") or "").lower().strip()).split("/")[0]
+            generic = local in kw["generic_inboxes"] or re.sub(r"[\d._-]+$", "", local) in kw["generic_inboxes"]
+            if webmail:
+                s += w["personal_email"] * (0.15 if generic else 0.3)
+                flags.append("free or ISP mailbox: confirm it really belongs to the company")
+            elif generic:
                 s += w["personal_email"] * 0.3
                 flags.append("generic inbox")
-            elif webmail:
-                s += w["personal_email"] * 0.5
-                flags.append("free webmail: verify it is the company")
+            elif site and dom.split(".")[0] != site.split(".")[0] and not dom.endswith(site):
+                s += w["personal_email"] * 0.6
+                flags.append(f"email domain {dom} differs from website {site}: confirm")
             else:
                 s += w["personal_email"]
     else:
