@@ -1,0 +1,9 @@
+company,website,country,buyer_type,employees,products_match,contact_name,contact_title,email,source,notes
+Example Trading GmbH,https://www.example-trading.de,DE,Importeur,45,yes,Anna Schmidt,Leiterin Einkauf,a.schmidt@example-trading.de,Ambiente exhibitor list,Added reusable drinkware line 2026
+Example Logistik GmbH,https://example-logistik.de,DE,importer,120,yes,,,info@example-logistik.de,customs data,consignee
+Maison Exemple SARL,https://maison-exemple.fr,FR,distributeur,18,partial,Luc Martin,Gérant,contact@maison-exemple.fr,Google,
+BottleShop on Amazon,https://www.amazon.de/stores/bottleshop,DE,ecommerce,,yes,,,,Amazon,
+Example Trading GmbH dup,https://example-trading.de/en,DE,importer,45,yes,,,,LinkedIn,
+Big Retail Inc,https://bigretail.example.com,US,retail chain,25000,partial,John Doe,Category Manager,j.doe@bigretail.example.com,LinkedIn,
+Tiny Gifts LLC,https://tinygifts.example.com,US,wholesaler,3,yes,Mary Lee,Owner,marylee@gmail.com,Google,
+Moscow Import OOO,https://moscow-import.example.ru,RU,импортер,60,yes,,,,Google,
