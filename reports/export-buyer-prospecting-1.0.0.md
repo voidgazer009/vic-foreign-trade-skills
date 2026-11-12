@@ -1,10 +1,7 @@
 # Audit · export-buyer-prospecting 1.0.0 · 2026-11-12
 
 ```
-通过 76 项, 未通过 3 项
-  ✗ 文件被 SKILL.md 引用: scripts/__pycache__/build_queries.cpython-312.pyc
-  ✗ 文件被 SKILL.md 引用: scripts/__pycache__/lint_outreach.cpython-312.pyc
-  ✗ 文件被 SKILL.md 引用: scripts/__pycache__/score_leads.cpython-312.pyc
+通过 77 项, 未通过 0 项
 ```
 
 ## Script tests
@@ -22,5 +19,5 @@ Fewer than 5 tier-A leads: widen buyer types or neighbouring countries.
 
 ⚠ DE/AT: email marketing needs prior consent even B2B (UWG §7). Prefer LinkedIn/phone first, or keep this a strictly individual inquiry.
 PASS
-FIX 8 item(s)
+email-bad.txt: FIX 8 item(s)
 ```

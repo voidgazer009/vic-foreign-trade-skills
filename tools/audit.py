@@ -35,12 +35,13 @@ chk((d/"LICENSE.txt").exists(), "LICENSE.txt 存在")
 # 引用完整：SKILL.md 中引用的相对路径都存在；scripts/references/assets 下文件都被引用
 refs = set(re.findall(r"((?:scripts|references|assets)/[\w./-]+)", txt))
 for rf in refs: chk((d/rf.rstrip('.')).exists(), f"引用文件存在: {rf}")
+chk(not list(d.rglob("__pycache__")) and not list(d.rglob(".DS_Store")), "无 __pycache__ / .DS_Store 垃圾文件")
 for sub in ["scripts", "references", "assets"]:
     for f in (d/sub).rglob("*") if (d/sub).exists() else []:
-        if f.is_file(): rel = f.relative_to(d).as_posix(); chk(rel in txt, f"文件被 SKILL.md 引用: {rel}")
+        if f.is_file() and "__pycache__" not in f.parts: rel = f.relative_to(d).as_posix(); chk(rel in txt, f"文件被 SKILL.md 引用: {rel}")
 for f in (d/"scripts").rglob("*") if (d/"scripts").exists() else []:
     if f.suffix == ".py":
-        try: py_compile.compile(str(f), doraise=True); chk(True, f"语法 OK {f.name}")
+        try: compile(f.read_text(encoding="utf-8"), str(f), "exec"); chk(True, f"语法 OK {f.name}")
         except Exception as e: chk(False, f"语法错误 {f.name}: {e}")
     if f.suffix == ".sh": chk(subprocess.run(["bash","-n",str(f)]).returncode == 0, f"语法 OK {f.name}")
 # Agent-agnostic: scripts use stdlib only and answer --help; no vendor-only tool names
@@ -50,7 +51,7 @@ for f in (d/"scripts").rglob("*.py") if (d/"scripts").exists() else []:
     mods = {m.split(".")[0] for m in re.findall(r"^\s*(?:import|from)\s+([\w\.]+)", src, re.M)}
     ext = sorted(m for m in mods - std if m != "__future__")
     chk(not ext, f"{f.name} uses stdlib only" + (f" (external: {ext})" if ext else ""))
-    rr = subprocess.run([sys.executable, str(f), "--help"], capture_output=True, text=True, cwd=d)
+    rr = subprocess.run([sys.executable, "-B", str(f), "--help"], capture_output=True, text=True, cwd=d)
     chk(rr.returncode == 0, f"{f.name} --help runs")
 vendor = re.findall(r"\b(Bash tool|Read tool|Write tool|Edit tool|str_replace_editor|computer_use|TodoWrite)\b", txt)
 chk(not vendor, "SKILL.md names no vendor-only tools" + (f" ({vendor})" if vendor else ""))
