@@ -37,6 +37,9 @@ skill-name/
 └── evals/            # evals.json + test files (incl. should-not-trigger cases)
 ```
 
+## Quality gates
+Every release passes 7 gates before it is pushed: spec and house-rule audit (`tools/audit.py`), script regression checks (`evals/checks.json`, run by `tools/check_scripts.py`), privacy and no-invented-data scan, dated official sources for anything that expires, a real-execution test by an agent that only reads the skill, an independent expert review (avg ≥ 8.5/10), and release hygiene. Full rules: [docs/review-process.md](docs/review-process.md). Each version's results are in [reports/](reports/).
+
 ## 中文说明
 
 这是 Vic 外贸技能合集。每个技能都是一个标准文件夹，装进任意支持 Agent Skills 的 AI 工具后，直接对它说"帮我开发德国客户"就会自动调用。脚本只用 Python 标准库，无需安装依赖。

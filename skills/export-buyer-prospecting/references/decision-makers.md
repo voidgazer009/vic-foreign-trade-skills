@@ -13,7 +13,7 @@ Read this when a lead has only info@/sales@, no named contact, or before sending
 ## Getting the address
 1. Company website: team, about, Impressum, press, PDF catalogues (often list buyers).
 2. Find **one real address** at the company (press contact, a PDF, a trade-show listing) to learn its pattern, then:
-   `python3 scripts/find_contacts.py email --name "Jan Müller" --domain firm.de --known "a.schmidt@firm.de=Anna Schmidt"`
+   `python3 scripts/find_contacts.py email --name "Jan Müller" --domain example.de --known "a.schmidt@example.de=Anna Schmidt"`
 3. Pattern tools if the user has them: Hunter, Apollo, RocketReach, Snov (free tiers are small).
 4. LinkedIn: connect first with a note (assets/linkedin-whatsapp-templates.md), ask for email only after they accept.
 

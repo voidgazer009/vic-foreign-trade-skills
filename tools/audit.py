@@ -4,7 +4,10 @@ Usage: python3 audit.py <skill_dir>"""
 import sys, os, re, json, subprocess, py_compile, pathlib
 d = pathlib.Path(sys.argv[1]).resolve(); errs, ok = [], []
 def chk(c, msg): (ok if c else errs).append(msg)
-r = subprocess.run([os.path.expanduser("~/.local/bin/skills-ref"), "validate", str(d)], capture_output=True, text=True)
+sr = os.path.expanduser("~/.local/bin/skills-ref")
+if not os.path.exists(sr):  # sandbox homes get reset: reinstall the official validator
+    subprocess.run([sys.executable, "-m", "pip", "install", "--user", "-q", "git+https://github.com/agentskills/agentskills.git#subdirectory=skills-ref"], capture_output=True)
+r = subprocess.run([sr, "validate", str(d)], capture_output=True, text=True) if os.path.exists(sr) else subprocess.CompletedProcess([], 1, "", "skills-ref not installed")
 chk(r.returncode == 0, f"skills-ref 官方校验: {(r.stdout+r.stderr).strip()[:300]}")
 sk = d / "SKILL.md"; chk(sk.exists(), "SKILL.md 存在")
 txt = sk.read_text(encoding="utf-8") if sk.exists() else ""
@@ -58,6 +61,33 @@ vendor = re.findall(r"\b(Bash tool|Read tool|Write tool|Edit tool|str_replace_ed
 chk(not vendor, "SKILL.md names no vendor-only tools" + (f" ({vendor})" if vendor else ""))
 chk(bool(re.search(r"^compatibility:", txt, re.M)), "has compatibility field (states runtime needs)")
 chk(bool(re.search(r"^## Gotchas", txt, re.M)), "has a Gotchas section")
+# Script regression checks (evals/checks.json)
+cs = pathlib.Path(__file__).resolve().parent / "check_scripts.py"
+rc = subprocess.run([sys.executable, "-B", str(cs), str(d)], capture_output=True, text=True)
+chk(rc.returncode == 0, "脚本回归 evals/checks.json 全部通过" + ("" if rc.returncode == 0 else ": " + " | ".join(l for l in rc.stdout.splitlines() if l.startswith("✗"))[:400]))
+ev = d / "evals" / "evals.json"
+if ev.exists():
+    E = json.loads(ev.read_text(encoding="utf-8")).get("evals", [])
+    chk(len(E) >= 5 and any(e.get("should_trigger") is False for e in E), "evals ≥5 条且含 should_trigger=false")
+# No invented or private data: real-looking emails/phones in SKILL.md, references, assets
+allowed_dom = re.compile(r"@(examp[l1]e\.(com|de|org|net|co\.uk)|examp[l1]e-[\w-]+\.\w+|usercompany\.com|yourcompany\.\w+|domain\.\w+|company\.\w+)$", re.I)
+leaks = []
+for f in [sk] + [p for sub in ("references", "assets") for p in (d/sub).rglob("*") if p.is_file()]:
+    t = f.read_text(encoding="utf-8", errors="ignore")
+    for e in re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", t):
+        if not allowed_dom.search(e) and not re.search(r"[{<\[]", e) and e.split("@")[1].lower() not in {"gmail.com", "users.noreply.github.com"}:
+            leaks.append(f"{f.name}:{e}")
+    for ph in re.findall(r"\+\d{2,3}[ -]?\d{3,4}[ -]?\d{3,4}[ -]?\d{3,4}", t):
+        if not re.search(r"(0000|1234|5555|x{3})", ph): leaks.append(f"{f.name}:{ph}")
+chk(not leaks, "无真实邮箱/电话（只用 example 域名与占位符）" + (f": {leaks[:5]}" if leaks else ""))
+# Time-sensitive references carry a fresh verification date (≤ 90 days)
+import datetime
+for f in (d/"references").rglob("*.md") if (d/"references").exists() else []:
+    t = f.read_text(encoding="utf-8")
+    m2 = re.search(r"[Ll]ast verified[^0-9]{0,20}(\d{4}-\d{2}-\d{2})", t)
+    if m2:
+        age = (datetime.date.today() - datetime.date.fromisoformat(m2.group(1))).days
+        chk(age <= 90, f"{f.name} 核实日期 {m2.group(1)} 不超过 90 天 (现 {age} 天)")
 ev = d/"evals"/"evals.json"
 try:
     e = json.loads(ev.read_text()); items = e.get("evals", e) if isinstance(e, dict) else e

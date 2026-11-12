@@ -1,0 +1,19 @@
+{
+  "_note": "Script regression checks, run by tools/check_scripts.py from the skill folder. expect_exit: exit code; expect: substrings that must appear in stdout; reject: substrings that must not.",
+  "checks": [
+    {"name": "scorer tiers sample leads", "cmd": "python3 scripts/score_leads.py evals/files/sample-leads.csv --icp assets/icp-template.json --out /tmp/vic-check-scored.csv", "expect_exit": 0, "expect": ["A=2", "forwarder/logistics", "marketplace page", "duplicate of row", "not in targets", "capped at tier B"]},
+    {"name": "good email passes", "cmd": "python3 scripts/lint_outreach.py evals/files/email-good.txt", "expect_exit": 0, "expect": ["PASS"]},
+    {"name": "bad email fails", "cmd": "python3 scripts/lint_outreach.py evals/files/email-bad.txt", "expect_exit": 1, "expect": ["FIX"]},
+    {"name": "linkedin note passes", "cmd": "python3 scripts/lint_outreach.py evals/files/linkedin-good.txt --channel linkedin", "expect_exit": 0, "expect": ["PASS"]},
+    {"name": "bad whatsapp fails", "cmd": "python3 scripts/lint_outreach.py evals/files/whatsapp-bad.txt --channel whatsapp", "expect_exit": 1, "expect": ["WhatsApp"]},
+    {"name": "price-fishing inquiry archived", "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-bad.txt --from bigbuyer@gmail.com", "expect_exit": 0, "expect": ["Verdict: ARCHIVE"]},
+    {"name": "real inquiry gets a quote", "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-good.txt --from sarah@brightlinehome.co.uk --company \"Brightline Home Ltd\"", "expect_exit": 0, "expect": ["Verdict: QUOTE"]},
+    {"name": "bad quote fails", "cmd": "python3 scripts/lint_quote.py evals/files/quote-bad.txt", "expect_exit": 1, "expect": ["FIX"]},
+    {"name": "good quote passes", "cmd": "python3 scripts/lint_quote.py evals/files/quote-good.txt", "expect_exit": 0, "expect": ["PASS"]},
+    {"name": "subdomain spoof stopped", "cmd": "python3 scripts/check_lookalike.py --known kamkuotrading.com --sender a@kamkuotrading.com.us-billing.net", "expect_exit": 1, "expect": ["STOP"]},
+    {"name": "hyphen look-alike stopped", "cmd": "python3 scripts/check_lookalike.py --known kamkuotrading.com --sender a@kamkuo-trading.com", "expect_exit": 1, "expect": ["imitates"]},
+    {"name": "free mail never trusted", "cmd": "python3 scripts/check_lookalike.py --known gmail.com --sender a@gmail.com", "expect_exit": 0, "expect": ["free/ISP mailbox"], "reject": ["✓"]},
+    {"name": "232 compound duty", "cmd": "python3 scripts/landed_cost.py --fob 1.32 --qty 3000 --freight 600 --duty MFN=4.6+0.8c --duty S232=25 --duty S301=7.5", "expect_exit": 0, "expect": ["37.7% of duty base"]},
+    {"name": "free mail domain age ignored", "cmd": "python3 scripts/verify_buyer.py --company \"Greenwich Trading\" --country US --domain gmail.com --offline", "expect_exit": null, "expect": ["free webmail"]}
+  ]
+}
