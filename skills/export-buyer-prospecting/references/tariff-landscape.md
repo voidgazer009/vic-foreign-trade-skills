@@ -1,4 +1,7 @@
-# US tariffs on Chinese goods: dated snapshot
+# Tariffs and import barriers: US, Mexico, Brazil (dated snapshot)
+
+US section below; Mexico and Brazil sections at the end.
+
 
 **Last verified: 2026-11-12. Rates change every few months; recheck before every US quote.** Never hard-code a rate in a quote: give the buyer a landed cost with the date you checked (`scripts/landed_cost.py`).
 
@@ -32,3 +35,21 @@ Sources: Congressional Research Service IF12990 (updated 2026-08-18); Beato Capi
 - A tariff change on the buyer's HTS line is a legitimate reason to write: "Your line 9617.00 went from X to Y on {date}; here is what that does to your landed cost and two ways to keep it flat."
 
 Look-ups: US tariff schedule https://hts.usitc.gov/ · Federal Register https://www.federalregister.gov/ · CBP https://www.cbp.gov/trade.
+
+## Mexico: higher duty on goods from non-FTA countries (China, India, Korea, Taiwan, Thailand…)
+
+**Last verified: 2026-11-13** on the decrees in the Diario Oficial (sidof.segob.gob.mx). Recheck the fracción before every MX quote.
+- DOF 29-12-2025 (in force 2026-01-01): IGI raised on 1,463 tariff lines to 5–50% (most 25% or 35%): textiles, apparel, steel, auto parts, plastics, footwear, toys, furniture, glass, cosmetics, household appliances such as microwave ovens (8516.50.01: 30%). https://sidof.segob.gob.mx/notas/5777376
+- DOF 23-04-2026 (in force 2026-04-24): 185 more lines at 5–35%, e.g. stainless-steel tableware/kitchenware 7323.93.05 at 35%, LED-only illuminated signs 9405.61.01 at 25%, other lamps 8539.29.99 at 35%. https://sidof.segob.gob.mx/notas/5785818
+- DOF 13-10-2026: a further tariff decree. https://sidof.segob.gob.mx/notas/5800977
+- No end date in the decrees. Goods that prove origin under an FTA (USMCA, EU, CPTPP…) keep preferential rates, so a Vietnamese or Malaysian competitor may pay less only if Mexico has an FTA with that origin and the buyer can prove it; check before promising a China+1 saving.
+- Not every product is listed: LED panel and downlight luminaires (9405.11 / 9405.42) were not in the three decrees on 2026-11-13. Search the buyer's 8-digit fracción in the decrees, or ask the buyer's agente aduanal.
+- On top of IGI: DTA 0.8% of customs value (min. MXN 461.61) and IVA 16% on value + IGI + DTA (usually credited back). `landed_cost.py --dest MX` computes both; customs value is CIF.
+- Sales angle: the buyer's duty jumped, not your price. Show landed cost, quote FOB/FCA, and offer bigger, less frequent shipments or a design that changes the fracción only when it is truly correct.
+
+## Brazil: who can import, and LED certification
+
+**Last verified: 2026-11-13** on gov.br (Receita Federal, Inmetro).
+- The importer needs Siscomex habilitação (RADAR). Modality "Limitada" caps imports at USD 50,000 or USD 150,000 per 6 consecutive months (Receita Federal, Pergunta 07). A buyer on a USD 50,000 cap cannot take a USD 80,000 first order in its own name: ask the modality early (`verify_buyer.py --country BR --order-usd`). https://www.gov.br/receitafederal/pt-br/assuntos/aduana-e-comercio-exterior/manuais/habilitacao/Perguntas-e-Respostas/Pergunta-07
+- Inmetro-regulated goods need certification and an Inmetro registration before the import licence (LI) is granted; the certificate alone does not authorise import. Portaria Inmetro 231/2026 (DOU 2026-05-05) covers LED lamps and LED luminaires with built-in driver and LED modules; its FAQ says all such products sold in Brazil must comply from 2030-05-05, with earlier steps in art. 15 for manufacture and import. Luminaires sold without a light source (with a lamp socket) are outside it. Who holds the registration (you or the importer) is a commercial question to settle before the quote. https://www.gov.br/inmetro/pt-br/acesso-a-informacao/perguntas-frequentes/avaliacao-da-conformidade/lampadas-e-luminarias-led-portaria-inmetro-no-231-2026-fabricantes-importadores-comerciantes-e-distribuidores
+- Brazil's import taxes cascade (II, IPI, PIS/COFINS, ICMS by state); use the buyer's despachante for landed cost instead of a formula.

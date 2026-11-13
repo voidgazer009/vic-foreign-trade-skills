@@ -28,9 +28,22 @@ TITLES = {"de": ["Einkauf", "Einkaufsleiter"], "fr": ["acheteur", "responsable a
           "it": ["responsabile acquisti"], "pt": ["gerente de compras", "comprador"], "nl": ["inkoper"], "pl": ["kierownik zakupów"]}
 
 
+LOCAL_NAME = {"DE": "Deutschland", "AT": "Österreich", "CH": "Schweiz", "ES": "España", "MX": "México", "BR": "Brasil",
+              "IT": "Italia", "NL": "Nederland", "PL": "Polska", "BE": "België", "SE": "Sverige", "TR": "Türkiye",
+              "JP": "日本", "KR": "대한민국", "PE": "Perú"}
+
+
+def short_term(name):
+    """Last two words in quotes ("panel light", "water bottle"): one word ("light") matches every lamp profile."""
+    w = name.split()
+    return '"' + " ".join(w[-2:]) + '"' if len(w) >= 2 else name
+
+
 def queries_for(code, cfg, langs, product, local, extra=()):
     lg0 = cfg["lang"][0]
-    short = local.get(lg0, product).split()[-1]  # one broad word: profiles rarely contain the full product name
+    short = short_term(local.get(lg0, product))
+    loc = LOCAL_NAME.get(code)
+    where = f'("{cfg["name"]}" OR "{loc}")' if loc and loc != cfg["name"] else f'"{cfg["name"]}"'
     local_titles = "".join(f' OR "{t}"' for t in TITLES.get(lg0, []))
     lines = [f"## {cfg['name']} ({code}) · languages: {', '.join(cfg['lang'])}", ""]
     tld = cfg["tld"]
@@ -52,8 +65,8 @@ def queries_for(code, cfg, langs, product, local, extra=()):
     lines += [
         "LinkedIn (people search via Google):",
         "```",
-        f'site:linkedin.com/in ("purchasing manager" OR "category manager" OR "sourcing manager" OR "head of buying"{local_titles}) {short} "{cfg["name"]}"',
-        f'site:linkedin.com/company {short} {langs[cfg["lang"][0]]["distributor"]} "{cfg["name"]}"',
+        f'site:linkedin.com/in ("purchasing manager" OR "category manager" OR "sourcing manager" OR "head of buying"{local_titles}) {short} {where}',
+        f'site:linkedin.com/company {short} {langs[cfg["lang"][0]]["distributor"]} {where}',
         "```",
         "",
     ]

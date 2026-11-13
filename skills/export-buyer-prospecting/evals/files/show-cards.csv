@@ -1,0 +1,6 @@
+company,contact_name,email,country,notes,asked
+Card Buyer One LLC,{Name A},a@buyer-one.example,US,wants 2x40HQ for Q2 promo,quote
+Card Buyer Two SA,{Name B},b@buyer-two.example,MX,looked at 12W panel,none
+Card Buyer Three,{Name C},c@buyer-three.example,US,asked for specs of 18W downlight,none
+Card Buyer Four,{Name D},d@buyer-four.example,SA,just collecting catalogues,
+Card Buyer One LLC,{Name E},e@buyer-one.example,US,second card same company,none

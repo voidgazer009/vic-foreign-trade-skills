@@ -31,19 +31,30 @@ REG = {
     "US": "the Secretary of State business search of the buyer's state (e.g. NY: https://apps.dos.ny.gov/publicInquiry/ , CA: https://bizfileonline.sos.ca.gov/search/business , TX: https://comptroller.texas.gov/taxes/franchise/ ), and https://www.sec.gov/cgi-bin/browse-edgar?company={q}&owner=include&action=getcompany for listed firms",
     "IE": "https://core.cro.ie/ (company search)",
     "SG": "https://www.bizfile.gov.sg/ (entity search)",
+    "BR": "the CNPJ card at https://solucoes.receita.fazenda.gov.br/Servicos/cnpjreva/cnpjreva_solicitacao.asp (ask for the CNPJ; check status 'ATIVA', activity code (CNAE) and partners (QSA))",
+    "MX": "ask for the RFC and the Constancia de Situación Fiscal; check the RFC with SAT and that the name and address match",
 }
+IMPORT_RIGHT = {  # can this company legally import, and how much?
+    "BR": "Brazil: an importer needs Siscomex habilitação (RADAR). 'Limitada' caps imports at USD 50,000 or 150,000 per 6 months; "
+          "ask which modality they hold. An order above their cap needs a higher modality first (Receita Federal, verified 2026-11-13).",
+    "MX": "Mexico: the importer must be registered in SAT's Padrón de Importadores (and the Padrón Sectorial for sensitive goods such as "
+          "steel, textiles, footwear). Ask for proof before production; unregistered buyers often route through an 'importadora' you never met.",
+}
+BR_CAPS = (50000, 150000)
 DEPTH = {
     "tt100": "light: website, domain age, registry entry, address on a map",
     "tt30-70": "light + a call to the company's public phone number; balance must be paid before shipment",
     "lc": "check the issuing bank too (known bank, SWIFT matches); have a bank review the L/C wording",
     "dp": "registry + credit report (Sinosure / credit agency) + you control the forwarder; never a buyer-nominated forwarder under D/P",
-    "bl-copy": "registry + credit report + credit insurance limit ≥ exposure; you release only after full payment",
+    "bl-copy": "registry + credit report + credit insurance limit ≥ exposure; book with YOUR forwarder or the carrier (a buyer-nominated "
+               "forwarder's house B/L lets the cargo be released without your original); keep the original B/L and allow no telex release "
+               "or sea waybill until the balance is in your bank",
     "oa": "full: registry, credit report, trade references, credit insurance limit ≥ order value, start with a small order",
 }
 
 
 def get(url, timeout=12):
-    req = urllib.request.Request(url, headers={"User-Agent": "export-buyer-prospecting/3.0", "Accept": "application/json"})
+    req = urllib.request.Request(url, headers={"User-Agent": "export-buyer-prospecting/3.1", "Accept": "application/json"})
     with urllib.request.urlopen(req, timeout=timeout) as r:
         return json.loads(r.read().decode("utf-8", "replace"))
 
@@ -56,6 +67,7 @@ def main():
     ap.add_argument("--vat", default="", help="EU VAT number with country prefix, e.g. DE123456789")
     ap.add_argument("--terms", choices=list(DEPTH), help="payment terms under discussion")
     ap.add_argument("--offline", action="store_true", help="skip network checks, print links only")
+    ap.add_argument("--order-usd", type=float, default=0, help="value of the order under discussion, to compare with import caps (BR)")
     a = ap.parse_args()
     cc = a.country.upper()
     q = urllib.parse.quote(a.company)
@@ -125,6 +137,13 @@ def main():
     if cc == "US":
         print(f"   - https://www.importyeti.com/ search '{a.company}' (US import records: do they really import your product? who supplies them?)")
     print("  Compare: registered name, address and business activity vs what they told you; does the activity fit your product?")
+    if cc in IMPORT_RIGHT:
+        print("  Import right: " + IMPORT_RIGHT[cc])
+        if cc == "BR" and a.order_usd > BR_CAPS[0]:
+            print(f"  ⚠ order USD {a.order_usd:,.0f} is above the USD 50,000 'Limitada' cap" + (" and the USD 150,000 cap" if a.order_usd > BR_CAPS[1] else "")
+                  + ": confirm the buyer's habilitação modality (or a trading company importing for them) before production")
+    if a.terms in ("bl-copy", "dp", "oa"):
+        print("  Payer check: the money must come from the buyer's own company account in the buyer's country. A third-party payer or another country = stop and verify.")
     if a.terms:
         print(f"  Depth for {a.terms}: {DEPTH[a.terms]}")
     print("RED FLAGS: " + str(red) if red else "No automatic red flag. Finish the manual checks above before credit terms.")

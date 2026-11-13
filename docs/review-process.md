@@ -1,25 +1,26 @@
-# Vic Skills 审核机制 v1.1（2026-11-12）
+# Vic Skills 审核机制 v1.2（2026-11-13）
 
 每个 Skill 每次发布前，必须按顺序通过 7 道关卡（G1–G7）。全部通过才自动推送 GitHub；任何一关不过就修，最多修 3 轮，仍不过就不推送，并向 Vic 说明原因。Vic 已授权（2026-11-12）：通过审核的 Skill 无需再问，自动上传到他的 4 个 Skills 仓库。
 
 ## G1 结构规范（自动）
-`python3 tools/audit.py <skill目录>` 必须 100% 通过。内容包括：官方 skills-ref 校验；frontmatter 只使用规范字段；name 与文件夹同名；description 40–1024 字符，并写明 Use when 和中文触发词；SKILL.md 少于 500 行；包含 Workflow、Example、Gotchas、Edge cases；scripts/references/assets 中每个文件都被 SKILL.md 引用，引用的文件都存在；脚本只用 Python 标准库并支持 `--help`；不出现特定厂商的工具名；没有 TODO 或 __pycache__。
+`python3 tools/audit.py <skill目录>` 必须 100% 通过。内容包括：官方 skills-ref 校验；frontmatter 只使用规范字段；name 与文件夹同名；description 40–1024 字符，并写明 Use when 和中文触发词；SKILL.md 少于 500 行；包含 Workflow、Example、Gotchas、Edge cases；scripts/references/assets 中每个文件都被 SKILL.md 引用，引用的文件都存在；脚本只用 Python 标准库并支持 `--help`；不出现特定厂商的工具名；没有 TODO 或 __pycache__；evals/files 中每个测试文件都被 evals.json 或 checks.json 使用（v1.2）。
 
 ## G2 脚本回归（自动）
 `evals/checks.json` 中的每条检查都要通过（G1 会自动调用 `tools/check_scripts.py`）。每修一个 bug，就加一条检查来锁定，防止复发。
 
 ## G3 隐私与真实性（自动 + 人工）
-- 自动：SKILL.md、references、assets 中不得出现真实邮箱或电话，只能使用 example 域名和 `{占位符}`。
+- 自动：SKILL.md、references、assets 和 evals/（含测试文件与 checks.json）中不得出现真实邮箱或电话，只能使用 example 域名、.example 后缀和 `{占位符}`（evals 自 v1.2 起纳入）。
 - 人工：示例中不得编造发件人的公司、姓名、地址或资质；测试中找到的第三方公司不写进 Skill。
 
 ## G4 事实时效（自动 + 人工）
-- 关税、费率、法规、平台规则这类会过期的数字，必须写明官方来源和 "Last verified YYYY-MM-DD"。超过 90 天，G1 判为不通过，需要重新核实。
+- 关税、费率、法规、平台规则这类会过期的数字，必须写明官方来源和 "Last verified YYYY-MM-DD"。超过 90 天，G1 判为不通过，需要重新核实。一个文件里有多个 "Last verified" 日期时，每一个都要检查（v1.2）。
 - 发布前用 web_fetch 打开原始页面核对一遍，不能只看搜索摘要。
 
 ## G5 真实执行测试（子代理）
 派测试代理，只给它 Skill 文件夹和 2–3 条 should_trigger=true 的用例（每轮轮换，并覆盖不同国家和渠道）。要求它只按 SKILL.md 完成真实任务（可联网），并报告卡住、绕路或出错的地方。
 - 结果分级：Critical（会让用户亏钱、违法或出错）/ Major（流程走不通或结果明显变差）/ Minor。
 - 发布条件：0 Critical、0 Major。Minor 写进 report 的待办。
+- 独立性（v1.2）：G5 和 G6 应由两个独立子代理完成。某轮运行环境没有子代理工具时，由主代理按同样规则执行，并在 report 中标注"in-house（非独立）"。这样的轮次可以发布，但它的 G5 结果和 G6 分数不计入毕业标准第 2、3 条，需在之后有子代理的轮次补做独立测试和评审。
 
 ## G6 独立专家评审（另一个子代理，不看测试结果）
 评审代理扮演该领域的资深从业者（例如 15 年外贸业务经理），按下表各打 0–10 分，并对每个低于 8 分的项给出具体修改建议：
@@ -53,3 +54,4 @@
 ## 审核机制变更记录
 - v1.0 · 2026-11-12 · 初版：7 道关卡、脚本回归检查、隐私扫描、90 天时效检查、毕业标准。
 - v1.1 · 2026-11-12 · 新增"审核机制自身的迭代"：漏网复盘、误报处理、只紧不松、留痕、每周体检。
+- v1.2 · 2026-11-13 · 隐私扫描扩展到 evals/（漏网：测试文件里有疑似真实第三方域名）；每个 Last verified 日期都检查（漏网：新增的墨西哥/巴西小节只有第一个日期被查）；evals/files 不得有孤立文件；子代理不可用时 G5/G6 标注 in-house，且不计入毕业。误报修正：允许 bigretail.example.com 这类子域写法。

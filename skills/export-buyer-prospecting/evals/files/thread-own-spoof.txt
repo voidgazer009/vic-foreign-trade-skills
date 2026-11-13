@@ -1,0 +1,4 @@
+From: sales@rnycompany.example
+To: a.schmidt@example-trading.de
+Subject: RE: PO 118
+Please find our new account for the balance.

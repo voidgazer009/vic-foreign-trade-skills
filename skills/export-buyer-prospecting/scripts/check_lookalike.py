@@ -5,10 +5,13 @@ Usage:
   python3 scripts/check_lookalike.py --known example-trading.de --sender anna@examp1e-trading.de
   python3 scripts/check_lookalike.py --known example-trading.de --thread thread.txt      # every address in a pasted thread
   python3 scripts/check_lookalike.py --pipeline pipeline.csv --sender anna@examp1e-trading.de  # known domains from your leads
+  python3 scripts/check_lookalike.py --pipeline pipeline.csv --own mycompany.com --thread thread.txt  # also guard your own domain
 
 Flags: one or two characters changed (l/1/I, rn/m, 0/o, vv/w), letters swapped, hyphen added or removed,
 TLD swapped (.de/.com, .ltd/.1td, .co/.com), the company name on free webmail, and any new domain that
 appears in the middle of a thread. Exit code 1 on a suspicious match.
+--own is your company's domain: your own addresses are not reported as "new", and a look-alike of YOUR domain is
+flagged too (hackers also write to your buyer as you, with "our new bank account").
 
 A changed bank account "by email" is the most common trade fraud: never pay or accept new bank details
 without a phone or video call to a number you already had. Python 3.9+ standard library only.
@@ -20,6 +23,10 @@ FREE = {"gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "live.com", "aol
         "me.com", "zoho.com", "t-online.de", "comcast.net", "optonline.net", "verizon.net", "att.net", "sbcglobal.net", "bellsouth.net",
         "cox.net", "charter.net", "earthlink.net", "orange.fr", "free.fr", "libero.it", "btinternet.com", "sky.com", "bigpond.com", "sina.com"}
 GLYPH = [("rn", "m"), ("vv", "w"), ("cl", "d"), ("1", "l"), ("i", "l"), ("0", "o"), ("5", "s"), ("3", "e"), ("ı", "i"), ("а", "a"), ("е", "e"), ("о", "o"), ("р", "p"), ("с", "c")]
+
+
+BANK_CHANGE = re.compile(r"(bank|account|iban|swift|beneficiary|konto|bankverbindung|cuenta|conta|banque|账户|账号)[^\n]{0,60}(chang|new|updat|replac|geändert|neue|nueva|nova|nouveau|nouvelle|变更|更换|换了)"
+                         r"|(chang|new|updat|replac)[^\n]{0,30}(bank|account|iban|beneficiary)", re.I)
 
 
 def norm(s):
@@ -79,8 +86,10 @@ def main():
     ap.add_argument("--sender", help="the address that just wrote to you")
     ap.add_argument("--thread", help="text file with a pasted email thread (headers included)")
     ap.add_argument("--company", default="", help="buyer company name, to catch it used on free webmail")
+    ap.add_argument("--own", action="append", default=[], help="your own company domain (repeatable)")
     a = ap.parse_args()
-    known = {k.lower().split("@")[-1] for k in a.known}
+    own = {k.lower().split("@")[-1] for k in a.own}
+    known = {k.lower().split("@")[-1] for k in a.known} | own
     if a.pipeline:
         with open(a.pipeline, newline="", encoding="utf-8-sig") as f:
             for r in csv.DictReader(f):
@@ -90,8 +99,10 @@ def main():
     addrs = []
     if a.sender:
         addrs.append(a.sender.lower())
+    text = ""
     if a.thread:
-        addrs += [m.lower() for m in re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", open(a.thread, encoding="utf-8").read())]
+        text = open(a.thread, encoding="utf-8").read()
+        addrs += [m.lower() for m in re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", text)]
     if not addrs:
         sys.exit("Give --sender or --thread.")
     if not known:
@@ -113,12 +124,20 @@ def main():
                 print(f"✗ {e}: {h}")
         elif dom in FREE:
             print(f"⚠ {e}: free/ISP mailbox. Anyone can open one in any name, so it can never be a trusted payment sender")
+        elif dom in own:
+            print(f"✓ {e}: your own domain")
         elif dom in known:
             print(f"✓ {e}: matches a trusted domain. A hacked real mailbox looks identical: a bank change is still a STOP until confirmed by phone")
         else:
             print(f"⚠ {e}: new domain, not in your trusted list. Confirm by phone before acting on payment or bank details")
-    if a.thread and len(seen) > 1:
-        print(f"⚠ thread uses {len(seen)} domains: {', '.join(seen)}. Hackers often reply from a look-alike in the middle of a thread.")
+    others = [d for d in seen if d not in own]
+    if a.thread and len(others) > 1:
+        print(f"⚠ thread uses {len(others)} outside domains: {', '.join(others)}. Hackers often reply from a look-alike in the middle of a thread.")
+    if a.thread and not own:
+        print("Tip: add --own <your domain> so your own addresses are not listed as new and look-alikes of your domain are caught.")
+    if BANK_CHANGE.search(text):
+        bad += 1
+        print("✗ the thread asks to change bank or payment details. Even from a trusted domain this is a STOP: a hacked real mailbox looks identical")
     if bad:
         print("STOP: do not change bank details, ship, or release documents. Call the buyer on a number you already had.")
     sys.exit(1 if bad else 0)

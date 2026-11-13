@@ -42,8 +42,8 @@
     },
     {
       "id": 6,
-      "prompt": "I found the purchasing manager Jürgen Müller at firm-gmbh.de on LinkedIn, and their press contact is a.schmidt@firm-gmbh.de (Anna Schmidt). What's his email?",
-      "expected_output": "Runs find_contacts.py email with --known; top guess j.mueller@firm-gmbh.de (umlaut transliterated); clearly marks it unverified and explains how to verify before sending",
+      "prompt": "I found the purchasing manager Jürgen Müller at example-firm.de on LinkedIn, and their press contact is a.schmidt@example-firm.de (Anna Schmidt). What's his email?",
+      "expected_output": "Runs find_contacts.py email with --known; top guess j.mueller@example-firm.de (umlaut transliterated); clearly marks it unverified and explains how to verify before sending",
       "should_trigger": true,
       "files": []
     },
@@ -145,6 +145,20 @@
       "id": 19,
       "prompt": "Help me calculate my monthly freight invoice reconciliation",
       "expected_output": "Does not trigger: logistics accounting, not buyer development",
+      "should_trigger": false,
+      "files": []
+    },
+    {
+      "id": 20,
+      "prompt": "墨西哥客户说我们的LED面板灯报价太贵了，因为今年关税涨了，巴西那边一个客户要下8万美金的单，怎么办？",
+      "expected_output": "Reads tariff-landscape.md Mexico section: checks the fracción against the 2026 non-FTA decrees (9405.11/9405.42 not listed as of 2026-11-13), runs landed_cost.py --dest MX with DTA and IVA shown apart; for Brazil runs verify_buyer.py --country BR --order-usd 80000, warns about the habilitação cap and Inmetro registration under Portaria 231/2026; states last-verified dates; no discount by reflex",
+      "should_trigger": true,
+      "files": []
+    },
+    {
+      "id": 21,
+      "prompt": "What's the current Mexico VAT rate for restaurants?",
+      "expected_output": "Does not trigger: domestic tax question, not export buyer development",
       "should_trigger": false,
       "files": []
     }

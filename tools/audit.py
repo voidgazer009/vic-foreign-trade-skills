@@ -70,9 +70,10 @@ if ev.exists():
     E = json.loads(ev.read_text(encoding="utf-8")).get("evals", [])
     chk(len(E) >= 5 and any(e.get("should_trigger") is False for e in E), "evals ≥5 条且含 should_trigger=false")
 # No invented or private data: real-looking emails/phones in SKILL.md, references, assets
-allowed_dom = re.compile(r"@(examp[l1]e\.(com|de|org|net|co\.uk)|examp[l1]e-[\w-]+\.\w+|usercompany\.com|yourcompany\.\w+|domain\.\w+|company\.\w+)$", re.I)
+allowed_dom = re.compile(r"@(examp[l1]e\.(com|de|org|net|co\.uk)|([\w-]+\.)*[\w-]*examp[l1]e[\w-]*(\.[\w-]+)*\.\w+|[\w.-]+\.example|usercompany\.\w+|mycompany\.\w+|yourcompany\.\w+|domain\.\w+|company\.\w+)$", re.I)
 leaks = []
-for f in [sk] + [p for sub in ("references", "assets") for p in (d/sub).rglob("*") if p.is_file()]:
+# v1.2: evals/ is shipped inside the skill too, so its fixtures and checks follow the same rule
+for f in [sk] + [p for sub in ("references", "assets", "evals") for p in (d/sub).rglob("*") if p.is_file()]:
     t = f.read_text(encoding="utf-8", errors="ignore")
     for e in re.findall(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+", t):
         if not allowed_dom.search(e) and not re.search(r"[{<\[]", e) and e.split("@")[1].lower() not in {"gmail.com", "users.noreply.github.com"}:
@@ -84,8 +85,8 @@ chk(not leaks, "无真实邮箱/电话（只用 example 域名与占位符）" +
 import datetime
 for f in (d/"references").rglob("*.md") if (d/"references").exists() else []:
     t = f.read_text(encoding="utf-8")
-    m2 = re.search(r"[Ll]ast verified[^0-9]{0,20}(\d{4}-\d{2}-\d{2})", t)
-    if m2:
+    # v1.2: every "Last verified" date in the file counts, not only the first one
+    for m2 in re.finditer(r"[Ll]ast verified[^0-9]{0,20}(\d{4}-\d{2}-\d{2})", t):
         age = (datetime.date.today() - datetime.date.fromisoformat(m2.group(1))).days
         chk(age <= 90, f"{f.name} 核实日期 {m2.group(1)} 不超过 90 天 (现 {age} 天)")
 ev = d/"evals"/"evals.json"
@@ -97,6 +98,12 @@ try:
         for fp in i.get("files", []):
             chk((d/fp).exists(), f"eval 文件存在: {fp}")
 except Exception as x: chk(False, f"evals.json 可解析: {x}")
+# v1.2: every fixture in evals/files is used by evals.json or checks.json (no orphan or forgotten test data)
+fx = d/"evals"/"files"
+if fx.exists():
+    used = (d/"evals"/"evals.json").read_text(encoding="utf-8", errors="ignore") + ((d/"evals"/"checks.json").read_text(encoding="utf-8", errors="ignore") if (d/"evals"/"checks.json").exists() else "")
+    orphans = [p.name for p in fx.rglob("*") if p.is_file() and p.name not in used]
+    chk(not orphans, "evals/files 每个文件都被 evals.json 或 checks.json 使用" + (f": {orphans}" if orphans else ""))
 for f in d.rglob("*"):
     if f.is_file() and f.suffix in {".md",".py",".sh",".json",".txt",".csv",".yaml",".yml"}:
         chk(not re.search(r"(TODO|TBD|lorem ipsum|待补充)", f.read_text(errors="ignore"), re.I), f"无占位内容: {f.relative_to(d)}")

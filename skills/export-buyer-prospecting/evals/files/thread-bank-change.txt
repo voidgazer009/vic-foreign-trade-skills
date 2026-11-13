@@ -1,0 +1,8 @@
+From: Anna <a.schmidt@example-trading.de>
+To: sales@usercompany.example
+Subject: PO 118
+Please confirm the PI.
+
+From: Anna <a.schmidt@example-trading.de>
+Subject: RE: PO 118
+Due to an audit our bank account has changed, new IBAN below. Please also ship first and we pay 70% against B/L copy.

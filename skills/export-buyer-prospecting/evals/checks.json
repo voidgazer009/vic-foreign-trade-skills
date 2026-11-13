@@ -1,19 +1,236 @@
 {
-  "_note": "Script regression checks, run by tools/check_scripts.py from the skill folder. expect_exit: exit code; expect: substrings that must appear in stdout; reject: substrings that must not.",
-  "checks": [
-    {"name": "scorer tiers sample leads", "cmd": "python3 scripts/score_leads.py evals/files/sample-leads.csv --icp assets/icp-template.json --out /tmp/vic-check-scored.csv", "expect_exit": 0, "expect": ["A=2", "forwarder/logistics", "marketplace page", "duplicate of row", "not in targets", "capped at tier B"]},
-    {"name": "good email passes", "cmd": "python3 scripts/lint_outreach.py evals/files/email-good.txt", "expect_exit": 0, "expect": ["PASS"]},
-    {"name": "bad email fails", "cmd": "python3 scripts/lint_outreach.py evals/files/email-bad.txt", "expect_exit": 1, "expect": ["FIX"]},
-    {"name": "linkedin note passes", "cmd": "python3 scripts/lint_outreach.py evals/files/linkedin-good.txt --channel linkedin", "expect_exit": 0, "expect": ["PASS"]},
-    {"name": "bad whatsapp fails", "cmd": "python3 scripts/lint_outreach.py evals/files/whatsapp-bad.txt --channel whatsapp", "expect_exit": 1, "expect": ["WhatsApp"]},
-    {"name": "price-fishing inquiry archived", "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-bad.txt --from bigbuyer@gmail.com", "expect_exit": 0, "expect": ["Verdict: ARCHIVE"]},
-    {"name": "real inquiry gets a quote", "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-good.txt --from sarah@brightlinehome.co.uk --company \"Brightline Home Ltd\"", "expect_exit": 0, "expect": ["Verdict: QUOTE"]},
-    {"name": "bad quote fails", "cmd": "python3 scripts/lint_quote.py evals/files/quote-bad.txt", "expect_exit": 1, "expect": ["FIX"]},
-    {"name": "good quote passes", "cmd": "python3 scripts/lint_quote.py evals/files/quote-good.txt", "expect_exit": 0, "expect": ["PASS"]},
-    {"name": "subdomain spoof stopped", "cmd": "python3 scripts/check_lookalike.py --known kamkuotrading.com --sender a@kamkuotrading.com.us-billing.net", "expect_exit": 1, "expect": ["STOP"]},
-    {"name": "hyphen look-alike stopped", "cmd": "python3 scripts/check_lookalike.py --known kamkuotrading.com --sender a@kamkuo-trading.com", "expect_exit": 1, "expect": ["imitates"]},
-    {"name": "free mail never trusted", "cmd": "python3 scripts/check_lookalike.py --known gmail.com --sender a@gmail.com", "expect_exit": 0, "expect": ["free/ISP mailbox"], "reject": ["✓"]},
-    {"name": "232 compound duty", "cmd": "python3 scripts/landed_cost.py --fob 1.32 --qty 3000 --freight 600 --duty MFN=4.6+0.8c --duty S232=25 --duty S301=7.5", "expect_exit": 0, "expect": ["37.7% of duty base"]},
-    {"name": "free mail domain age ignored", "cmd": "python3 scripts/verify_buyer.py --company \"Greenwich Trading\" --country US --domain gmail.com --offline", "expect_exit": null, "expect": ["free webmail"]}
-  ]
+ "_note": "Script regression checks, run by tools/check_scripts.py from the skill folder. expect_exit: exit code; expect: substrings that must appear in stdout; reject: substrings that must not.",
+ "checks": [
+  {
+   "name": "scorer tiers sample leads",
+   "cmd": "python3 scripts/score_leads.py evals/files/sample-leads.csv --icp assets/icp-template.json --out /tmp/vic-check-scored.csv",
+   "expect_exit": 0,
+   "expect": [
+    "A=2",
+    "forwarder/logistics",
+    "marketplace page",
+    "duplicate of row",
+    "not in targets",
+    "capped at tier B"
+   ]
+  },
+  {
+   "name": "good email passes",
+   "cmd": "python3 scripts/lint_outreach.py evals/files/email-good.txt",
+   "expect_exit": 0,
+   "expect": [
+    "PASS"
+   ]
+  },
+  {
+   "name": "bad email fails",
+   "cmd": "python3 scripts/lint_outreach.py evals/files/email-bad.txt",
+   "expect_exit": 1,
+   "expect": [
+    "FIX"
+   ]
+  },
+  {
+   "name": "linkedin note passes",
+   "cmd": "python3 scripts/lint_outreach.py evals/files/linkedin-good.txt --channel linkedin",
+   "expect_exit": 0,
+   "expect": [
+    "PASS"
+   ]
+  },
+  {
+   "name": "bad whatsapp fails",
+   "cmd": "python3 scripts/lint_outreach.py evals/files/whatsapp-bad.txt --channel whatsapp",
+   "expect_exit": 1,
+   "expect": [
+    "WhatsApp"
+   ]
+  },
+  {
+   "name": "price-fishing inquiry archived",
+   "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-bad.txt --from bigbuyer@gmail.com",
+   "expect_exit": 0,
+   "expect": [
+    "Verdict: ARCHIVE"
+   ]
+  },
+  {
+   "name": "real inquiry gets a quote",
+   "cmd": "python3 scripts/triage_inquiry.py evals/files/inquiry-good.txt --from sarah@example-home.co.uk --company \"Example Home Ltd\"",
+   "expect_exit": 0,
+   "expect": [
+    "Verdict: QUOTE"
+   ]
+  },
+  {
+   "name": "bad quote fails",
+   "cmd": "python3 scripts/lint_quote.py evals/files/quote-bad.txt",
+   "expect_exit": 1,
+   "expect": [
+    "FIX"
+   ]
+  },
+  {
+   "name": "good quote passes",
+   "cmd": "python3 scripts/lint_quote.py evals/files/quote-good.txt",
+   "expect_exit": 0,
+   "expect": [
+    "PASS"
+   ]
+  },
+  {
+   "name": "subdomain spoof stopped",
+   "cmd": "python3 scripts/check_lookalike.py --known exampletrading.com --sender a@exampletrading.com.us-billing.net",
+   "expect_exit": 1,
+   "expect": [
+    "STOP"
+   ]
+  },
+  {
+   "name": "hyphen look-alike stopped",
+   "cmd": "python3 scripts/check_lookalike.py --known exampletrading.com --sender a@example-trading.com",
+   "expect_exit": 1,
+   "expect": [
+    "imitates"
+   ]
+  },
+  {
+   "name": "free mail never trusted",
+   "cmd": "python3 scripts/check_lookalike.py --known gmail.com --sender a@gmail.com",
+   "expect_exit": 0,
+   "expect": [
+    "free/ISP mailbox"
+   ],
+   "reject": [
+    "✓"
+   ]
+  },
+  {
+   "name": "232 compound duty",
+   "cmd": "python3 scripts/landed_cost.py --fob 1.32 --qty 3000 --freight 600 --duty MFN=4.6+0.8c --duty S232=25 --duty S301=7.5",
+   "expect_exit": 0,
+   "expect": [
+    "37.7% of duty base"
+   ]
+  },
+  {
+   "name": "free mail domain age ignored",
+   "cmd": "python3 scripts/verify_buyer.py --company \"Example Trading\" --country US --domain gmail.com --offline",
+   "expect_exit": null,
+   "expect": [
+    "free webmail"
+   ]
+  },
+  {
+   "name": "show cards graded by word, not substring (specs is not pcs; catalogue collector is C; dup card merged)",
+   "cmd": "rm -f /tmp/vic-pl.csv && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-06 import-show evals/files/show-cards.csv --show 'Canton Fair 138' && cat /tmp/vic-pl.csv",
+   "expect_exit": 0,
+   "expect": [
+    "A 1 (due within 48 h), B 2 (3 days), C 1",
+    "Merged 1 extra card",
+    "Card Buyer Three,US,,{Name C},c@buyer-three.example,email,show:Canton Fair 138,new,0,,2026-11-09,[B]",
+    "also met: {Name E}"
+   ]
+  },
+  {
+   "name": "show lead follows the show track and skips the weekend",
+   "cmd": "rm -f /tmp/vic-pl.csv && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-06 import-show evals/files/show-cards.csv --show F >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-09 log 'Card Buyer One LLC' sent",
+   "expect_exit": 0,
+   "expect": [
+    "next 2026-11-16",
+    "Show email 2"
+   ]
+  },
+  {
+   "name": "same event twice on one day is refused",
+   "cmd": "rm -f /tmp/vic-pl.csv && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-06 import-show evals/files/show-cards.csv --show F >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-09 log 'Card Buyer One LLC' sent >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-09 log 'Card Buyer One LLC' sent",
+   "expect_exit": 1,
+   "expect": [
+    "already logged"
+   ]
+  },
+  {
+   "name": "terms flag is cleared only by verified with a note",
+   "cmd": "rm -f /tmp/vic-pl.csv && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-06 import-show evals/files/show-cards.csv --show F >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-09 log 'Card Buyer Two SA' quoted >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-13 log 'Card Buyer Two SA' terms >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-13 log 'Card Buyer Two SA' verified --note 'phone on known number; terms unchanged' && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-13 today",
+   "expect_exit": 0,
+   "expect": [
+    "Send the written terms"
+   ],
+   "reject": [
+    "🔴"
+   ]
+  },
+  {
+   "name": "Fri-Sat weekend country: cold touch lands Mon-Wed (Mon 16th, not Tue 17th)",
+   "cmd": "rm -f /tmp/vic-pl.csv && printf 'company,country,contact_name,email,tier\\nExample Gulf Trading,SA,{Name},n@example-gulf.example,A\\n' > /tmp/vic-sa.csv && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-05 add /tmp/vic-sa.csv >/dev/null && python3 scripts/pipeline.py --file /tmp/vic-pl.csv --date 2026-11-12 log 'Example Gulf Trading' sent",
+   "expect_exit": 0,
+   "expect": [
+    "next 2026-11-16"
+   ]
+  },
+  {
+   "name": "bank change from a trusted domain still stops",
+   "cmd": "python3 scripts/check_lookalike.py --known example-trading.de --own usercompany.example --thread evals/files/thread-bank-change.txt",
+   "expect_exit": 1,
+   "expect": [
+    "asks to change bank",
+    "your own domain"
+   ],
+   "reject": [
+    "new domain, not in your trusted list"
+   ]
+  },
+  {
+   "name": "look-alike of the user's own domain stops",
+   "cmd": "python3 scripts/check_lookalike.py --known example-trading.de --own mycompany.example --thread evals/files/thread-own-spoof.txt",
+   "expect_exit": 1,
+   "expect": [
+    "rnycompany.example imitates mycompany.example"
+   ]
+  },
+  {
+   "name": "LinkedIn query uses a two-word phrase and the local country name",
+   "cmd": "python3 scripts/build_queries.py --product 'LED panel light' --countries BR,US --local-product 'pt=painel LED'",
+   "expect_exit": 0,
+   "expect": [
+    "\"painel LED\" (\"Brazil\" OR \"Brasil\")",
+    "\"panel light\" \"United States\""
+   ]
+  },
+  {
+   "name": "no German hints for a US company",
+   "cmd": "python3 scripts/find_contacts.py roles --company 'Example Inc' --country US",
+   "expect_exit": 0,
+   "expect": [
+    "state business registry"
+   ],
+   "reject": [
+    "Impressum",
+    "impressum",
+    "ansprechpartner"
+   ]
+  },
+  {
+   "name": "Brazil import cap warned",
+   "cmd": "python3 scripts/verify_buyer.py --company 'Example Importadora Ltda' --country BR --terms bl-copy --order-usd 80000 --offline",
+   "expect_exit": 0,
+   "expect": [
+    "habilitação",
+    "above the USD 50,000",
+    "buyer-nominated",
+    "Payer check"
+   ]
+  },
+  {
+   "name": "Mexico landed cost adds DTA on CIF and shows IVA apart",
+   "cmd": "python3 scripts/landed_cost.py --fob 6.8 --qty 2000 --freight 2400 --dest MX --duty IGI=15",
+   "expect_exit": 0,
+   "expect": [
+    "Duty base (CIF value): 16,048.00",
+    "DTA 0.8% 128.38",
+    "IVA 16%",
+    "Landed cost 18,583.58"
+   ]
+  }
+ ]
 }

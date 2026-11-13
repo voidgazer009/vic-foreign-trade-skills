@@ -1,11 +1,11 @@
 ---
 name: export-buyer-prospecting
-description: End-to-end overseas B2B customer development for exporters and manufacturers, from finding buyers to a safely paid first order. Picks markets, finds importers and distributors with local-language searches, scores leads, finds decision-makers and email patterns, checks deliverability, writes and lints cold emails, LinkedIn and WhatsApp messages, triages price-only inquiries, decides sample policy, lints quotations and Incoterms, follows up trade-show leads, verifies buyers, guards payment terms and email-hacking scams, estimates US landed cost under tariffs, and tracks follow-ups. Use when the user wants to 开发客户, 找客户, 找海外买家, 写开发信, 开发信没回复, 进垃圾箱, 找决策人, 报价后客户不回, 询盘套价, 要免费样品, 报价单, 展会客户跟进, 客户背调, 改付款方式, 邮件被黑改账户, 美国关税, or to find, qualify, contact and convert foreign buyers.
+description: End-to-end overseas B2B customer development for exporters and manufacturers, from finding buyers to a safely paid first order. Picks markets, finds importers and distributors with local-language searches, scores leads, finds decision-makers and email patterns, checks deliverability, writes and lints cold emails, LinkedIn and WhatsApp messages, triages price-only inquiries, decides sample policy, lints quotations and Incoterms, follows up trade-show leads, verifies buyers, guards payment terms and email-hacking scams, estimates landed cost under US and Mexico tariffs, and tracks follow-ups. Use when the user wants to 开发客户, 找客户, 找海外买家, 写开发信, 开发信没回复, 进垃圾箱, 找决策人, 报价后客户不回, 询盘套价, 要免费样品, 报价单, 展会客户跟进, 客户背调, 改付款方式, 邮件被黑改账户, 美国关税, 墨西哥关税, or to find, qualify, contact and convert foreign buyers.
 license: MIT. See LICENSE.txt
 compatibility: Works with any Agent Skills compatible agent. Scripts need Python 3.9+ standard library only. Web search and internet access improve results but are optional.
 metadata:
   author: Vic (voidgazer009)
-  version: "3.0.0"
+  version: "3.1.0"
   collection: vic-foreign-trade-skills
 ---
 
@@ -31,7 +31,8 @@ Turn "I make X, find me buyers in Y" into a ranked list of real importers, the r
 | "Check my quotation / PI / which Incoterm" | Step 12 |
 | "I have trade-show cards" | Step 9 `import-show`, then `assets/show-followup-template.md` |
 | "Is this buyer real? / they want B/L copy or open account / bank details changed" | Step 13 |
-| "US tariffs / buyer says too expensive because of duty" | Step 12 with `scripts/landed_cost.py` |
+| "US or Mexico tariffs / buyer says too expensive because of duty" | Step 12 with `scripts/landed_cost.py` |
+| "Can this Brazil/Mexico buyer import? / Inmetro / NOM" | Step 13, then `references/tariff-landscape.md` |
 
 ## Workflow
 
@@ -114,7 +115,7 @@ python3 scripts/pipeline.py stats
 ```
 Log `sent` again after answering a reply; replied leads move to a post-reply track (day 3/8/15), not the cold sequence. `today` lists every due action with the send window on both the buyer's and the user's clock (pass the user's own zone); `stats` diagnoses where the funnel breaks (bounces, spam, copy, wrong person) after 30+ contacts.
 
-US, Canada, Australia, Brazil and Mexico span several time zones: fill `state` (US) or `tz` in the leads CSV so send windows are right. When the window falls in the user's night, tell them to use scheduled send. Trade-show cards: `pipeline.py import-show cards.csv --show "Canton Fair 140"` grades them A (due within 48 h), B (3 days), C (quarterly). Other events: `sample` (day 3/7/21 checks), `incumbent` ("we have a supplier", 60-day re-touch, `--note` the trigger to watch), `terms` (buyer asks to change payment terms: flagged red). `stats` splits results by lead source.
+US, Canada, Australia, Brazil and Mexico span several time zones: fill `state` (US) or `tz` in the leads CSV so send windows are right. When the window falls in the user's night, tell them to use scheduled send. Trade-show cards: `pipeline.py import-show cards.csv --show "Canton Fair 140"` grades them A (due within 48 h), B (3 days), C (quarterly). Other events: `sample` (day 3/7/21 checks), `incumbent` ("we have a supplier", 60-day re-touch, `--note` the trigger to watch), `terms` (buyer asks to change payment terms: flagged red until `verified --note`). Show leads follow their own track (email 2 on day 5, then re-touch before the next fair); follow-ups skip the buyer's weekend (Fri–Sat in most Gulf states). The same event twice on one day is refused unless `--force`. `stats` splits results by lead source.
 
 Deliver with `assets/report-template.md`: ICP in 3 lines, the scored list (tier A first), the sender-domain status, the sequence for the top lead, and today's actions.
 
@@ -137,15 +138,17 @@ Fill `assets/quote-sheet-template.md`, then:
 ```bash
 python3 scripts/lint_quote.py quote.txt --mode sea --dest US
 python3 scripts/landed_cost.py --fob 1.32 --qty 3000 --freight 600 --duty MFN=4.6+0.8c --duty S232=25 --duty S301=7.5   # US buyers
+python3 scripts/landed_cost.py --fob 6.80 --qty 2000 --freight 2400 --dest MX --duty IGI={rate from the decree}            # Mexico
 ```
-Fix every ✗. Duty rates come from the official tariff database, with the date checked. Read `references/tariff-landscape.md` before any US quote: check Section 232 first (steel, aluminium, copper and derivatives such as knives and kitchen utensils), because 232 goods skip the 12.5% forced-labor tariff. Say the reference's "last verified" date. On "too expensive", follow the reply playbook: compare specs, trade instead of discount.
+Fix every ✗. Duty rates come from the official tariff database, with the date checked. Read `references/tariff-landscape.md` before any US quote: check Section 232 first (steel, aluminium, copper and derivatives such as knives and kitchen utensils), because 232 goods skip the 12.5% forced-labor tariff. For Mexico, check the buyer's fracción against the 2026 non-FTA decrees (5–50%); for Brazil, check the importer's habilitação cap and Inmetro registration before quoting regulated goods. Say the reference's "last verified" date. On "too expensive", follow the reply playbook: compare specs, trade instead of discount.
 
 ### 13. Verify the buyer and protect the payment
 ```bash
 python3 scripts/verify_buyer.py --company "Example Trading GmbH" --country DE --domain example-trading.de --vat DE123456789 --terms bl-copy
-python3 scripts/check_lookalike.py --pipeline pipeline.csv --sender accounts@examp1e-trading.de
+python3 scripts/check_lookalike.py --pipeline pipeline.csv --own usercompany.com --thread thread.txt
+python3 scripts/pipeline.py log "Example Trading GmbH" verified --note "called known number; terms stay 30/70 before shipment"
 ```
-Run `verify_buyer.py` before free samples, credit terms or a big first order; depth grows with risk (`--terms`). Run `check_lookalike.py` on every mail that mentions bank details, payment or document release. Follow `references/payment-and-fraud.md` when the buyer asks to change terms.
+Run `verify_buyer.py` before free samples, credit terms or a big first order; depth grows with risk (`--terms`; `--order-usd` for Brazil's import caps). Run `check_lookalike.py` with `--own` on every mail that mentions bank details, payment or document release: it stops on look-alikes of the buyer's or the user's domain and on any request to change bank details. Follow `references/payment-and-fraud.md` when the buyer asks to change terms (under FOB, a buyer-nominated forwarder can release the cargo without your original B/L). Log `verified` with what was checked to clear the red flag.
 
 ## Example
 
@@ -184,10 +187,9 @@ Run `verify_buyer.py` before free samples, credit terms or a big first order; de
 - **Keep cold email off the main company domain.** A spam reputation hit there puts quotes, PIs and payment mails to existing customers in spam too.
 - **Hard bounces above 2% damage the domain.** Never send bulk to guessed addresses.
 - **WhatsApp only after the buyer gave the number or wrote first.** Unsolicited messages get the number blocked and reported.
-- **Fake-buyer signals:** free webmail with a big urgent order, requests for free samples plus courier to a third country, pressure to pay "registration" or "certificate" fees, changed bank or ship-to details. Pause and verify before spending money.
+- **Fake-buyer signals:** free webmail with a big urgent order, free samples plus courier to a third country, "registration" or "certificate" fees, changed ship-to details. Pause and verify before spending money.
 - **Check sanctions lists** (OFAC SDN, EU, UN) before engaging buyers in high-risk countries; the scorer flags these countries but cannot screen names.
-- **Bank details never change by email.** Any change, either direction, is confirmed by phone on a number you already had. Hackers reply from look-alike domains in the middle of real threads.
-- **The first oral request to change payment terms is the warning sign.** Never agree to "ship first, pay against B/L copy" in the chat; follow `references/payment-and-fraud.md`.
+- **Bank details never change by email, and the first oral request to change payment terms is the warning sign.** Confirm any change by phone on a number you already had; never agree to "ship first, pay against B/L copy" in the chat.
 - **"FDA approved" is false for food-contact goods.** FDA does not approve or certify kitchenware; say "tested to FDA 21 CFR food-contact requirements, report available".
 - **Tariff numbers expire.** Never quote a US duty rate from memory; use the dated reference and tell the user to recheck it. Prefer FOB or DAP over DDP while duties move.
 - **Most "best price" inquiries are honest benchmarking.** Answer fast and politely; protect the price list, not your pride.

@@ -7,7 +7,7 @@ The money is lost at two moments: when terms slide toward credit, and when bank 
 |---|---|---|---|
 | 100% T/T in advance | You | none | light checks (`verify_buyer.py --terms tt100`) |
 | 30% deposit, 70% **before shipment** | You | buyer delays balance, goods wait in your warehouse | agree storage cost after N days |
-| 30% deposit, 70% **against copy of B/L** | Buyer (goods have sailed) | buyer stops paying once the ship has left | registry + credit check; keep original B/L; never telex-release before payment |
+| 30% deposit, 70% **against copy of B/L** | Buyer (goods have sailed) | buyer stops paying once the ship has left; buyer-nominated forwarder releases the cargo on its own house B/L | registry + credit check; your forwarder or the carrier's master B/L; keep original B/L; no telex release or sea waybill before payment |
 | L/C at sight | Bank | discrepancies (wrong dates, "Incoterms 2020" missing, spelling) | have your bank review the L/C wording before accepting |
 | D/P | Bank, until paid | buyer refuses documents; goods stuck at destination port, auctioned | credit report, credit insurance, **your** forwarder, never a buyer-nominated one |
 | O/A (open account) | Buyer | default | full checks, credit-insurance limit ≥ exposure, start small |
@@ -31,7 +31,12 @@ Typical pattern: a mailbox is hacked, the hacker watches the thread, then sends 
 - Any new bank detail, in either direction: call a phone number you already had (not one in the new email).
 - Before paying, shipping or releasing documents, run `scripts/check_lookalike.py --pipeline pipeline.csv --sender <address>` or `--thread thread.txt`.
 - Mailbox hygiene: two-factor login, review auto-forward rules monthly, login alerts on.
-- Buyer's bank country differs from the buyer's country: stop and verify.
+- Buyer's bank country differs from the buyer's country, or a third party pays: stop and verify (also a money-laundering and sanctions red flag).
+- Hackers also write to YOUR buyer as you ("our new account"). Run `check_lookalike.py --own <your domain>` on threads, and tell key buyers in writing that your bank details never change by email.
+- `check_lookalike.py` also stops on any thread text that asks to change bank or payment details, even from a trusted domain, because a hacked real mailbox looks identical.
+
+## FOB with a buyer-nominated forwarder
+Common under FOB: the buyer names the forwarder. The forwarder works for the buyer and can release the cargo against its own house B/L while your balance is unpaid. Before open terms or B/L-copy terms: ask for the carrier's master B/L consigned "to order" or to your bank, or move to CIF/CFR with your own forwarder, or keep the payment before shipment.
 
 ## Fake-buyer signals (also in SKILL.md Gotchas)
 Free webmail with a big urgent order; free samples plus courier to a third country; "registration", "certificate" or "inspection" fees; price accepted at once well above market with open account; a real company's name used by someone else (check the registry's business activity fits the product).

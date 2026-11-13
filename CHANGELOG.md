@@ -1,5 +1,15 @@
 # Changelog
 
+## export-buyer-prospecting 3.1.0 · 2026-11-13
+Iteration round 1. Real-execution test on three cases (B/L-copy + "bank account changed" for a German buyer; 30 Canton Fair cards from US/MX/AU/SA/AE; LED panel importers in Mexico and Brazil with live search): 0 critical, 7 major, 8 minor; all major and minor fixed.
+- Mexico: tariff reference for the 2026 non-FTA duty decrees (DOF 29-12-2025, 23-04-2026, 13-10-2026; 5–50%, most 25–35%), verified on the official decree texts; `landed_cost.py --dest MX` adds DTA 0.8% on CIF and shows IVA 16% apart
+- Brazil: importer habilitação caps (USD 50k / 150k per 6 months) and Inmetro registration for LED luminaires (Portaria 231/2026); `verify_buyer.py --country BR --order-usd` warns when the first order exceeds the cap; CNPJ and RFC lookups
+- Payment safety: buyer-nominated forwarder trap under FOB / B/L-copy (house B/L release), third-party payer check; `check_lookalike.py` stops on any request to change bank details even from a trusted domain, catches look-alikes of the user's own domain (`--own`) and no longer lists the user's own address as "new"
+- `pipeline.py`: `verified` event clears the red terms flag (with a note of what was checked); same event twice on one day refused (`--force` to override); show leads get their own track (email 2 on day 5, then re-touch before the next fair); show cards graded by whole words (no more "specs" → pcs → A), catalogue collectors → C, second cards from one company merged; Fri–Sat weekends for Gulf countries; "use scheduled send" when the window is in the user's night; sample on a quoted lead keeps the open quote noted
+- `find_contacts.py roles`: country-specific team-page words and registry tips (no German Impressum hints for US/BR)
+- `build_queries.py`: LinkedIn queries use a two-word product phrase and the local country name (Brasil, México, Deutschland…)
+- Test fixtures use example domains only; 21 evals, 25 script regression checks
+
 ## export-buyer-prospecting 3.0.0 · 2026-11-12
 From buyers found to a safely paid first order. Built on 13 more pain points (docs/pain-points-research-r2.md, 25 sources).
 - New deal stage (steps 10–13) and router rows for inquiries, samples, quotes, trade shows, buyer checks, payment changes and US tariffs

@@ -27,6 +27,21 @@ LOCAL_TITLES = {
     "BR": ["Gerente de compras", "Comprador", "Diretor"], "NL": ["Inkoper", "Hoofd inkoop", "Directeur"], "PL": ["Kierownik zakupów", "Kupiec", "Prezes"],
     "JP": ["購買部長", "調達担当", "代表取締役"], "KR": ["구매팀장", "구매담당"],
 }
+TEAM_WORDS = {  # words on team / legal-notice pages, per country
+    "DE": ["Impressum", "Ansprechpartner", "Team"], "AT": ["Impressum", "Ansprechpartner", "Team"], "CH": ["Impressum", "Kontakt", "Team"],
+    "FR": ["équipe", "mentions légales", "contact"], "ES": ["equipo", "quiénes somos", "aviso legal"], "MX": ["equipo", "quiénes somos", "contacto"],
+    "BR": ["equipe", "quem somos", "contato"], "PT": ["equipa", "quem somos", "contactos"], "IT": ["chi siamo", "team", "contatti"],
+    "NL": ["over ons", "team", "contact"], "PL": ["o nas", "zespół", "kontakt"],
+}
+COUNTRY_TIPS = {
+    "DE": "Germany/Austria/Switzerland: the Impressum page legally lists the Geschäftsführer (managing director).",
+    "AT": "Germany/Austria/Switzerland: the Impressum page legally lists the Geschäftsführer (managing director).",
+    "CH": "Germany/Austria/Switzerland: the Impressum page legally lists the Geschäftsführer (managing director).",
+    "FR": "France: annuaire-entreprises.data.gouv.fr lists the dirigeants (legal officers) of every company.",
+    "GB": "UK: Companies House lists the directors of every limited company.",
+    "BR": "Brazil: the CNPJ record (Receita Federal) lists the partners (QSA); in small firms the sócio-administrador decides.",
+    "US": "US: small importers are often run by the owner; the state business registry names the officers or registered agent.",
+}
 PATTERNS = [  # (pattern, rough global share rank)
     "{first}.{last}", "{f}.{last}", "{first}", "{f}{last}", "{first}{last}", "{last}", "{first}_{last}", "{last}.{first}", "{first}.{l}", "{first}-{last}",
 ]
@@ -144,13 +159,16 @@ def cmd_roles(a):
     print("Google → LinkedIn people:")
     print(f'  site:linkedin.com/in "{a.company}" ({q})')
     print("Company team pages:")
-    print(f'  "{a.company}" (team OR "about us" OR impressum OR "ansprechpartner" OR "contact") ({" OR ".join(chr(34)+r+chr(34) for r in (local or ROLES_BUY)[:4])})')
+    words = TEAM_WORDS.get(a.country.upper(), ["team", "about us", "contact"])
+    print(f'  "{a.company}" ({" OR ".join(chr(34)+w+chr(34) for w in words)}) ({" OR ".join(chr(34)+r+chr(34) for r in (local or ROLES_BUY)[:4])})')
     print("\nWho to contact first:")
     print("  • Under ~50 staff: the owner / managing director decides; write to them.")
     print("  • 50–500: purchasing or category manager; cc nobody on the first email.")
     if a.industrial:
         print("  • Industrial / technical products: also reach the technical or engineering manager; they approve the spec before purchasing compares price.")
-    print("  • Germany/Austria: the Impressum page legally lists the Geschäftsführer (managing director).")
+    tip = COUNTRY_TIPS.get(a.country.upper())
+    if tip:
+        print("  • " + tip)
 
 
 def cmd_email(a):

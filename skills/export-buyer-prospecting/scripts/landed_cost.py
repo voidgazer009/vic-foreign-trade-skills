@@ -12,7 +12,10 @@ such as "0.8¢ each + 4.6%" → MFN=4.6+0.8c. Several items on one entry: run on
 All duty rates are YOUR input (percent of customs value). Nothing is hard-coded because tariffs change
 every few months: look up the HTS line at https://hts.usitc.gov/ (US) or the destination's tariff database and
 note the date you checked. US: adds MPF (0.3464%, min/max per entry) and HMF (0.125%) on ocean entries.
-US customs value is FOB-based (freight is excluded); EU/UK/most others use CIF value.
+US customs value is FOB-based (freight is excluded); EU/UK/Mexico/most others use CIF value.
+Mexico (--dest MX): adds DTA 0.8% of customs value (Ley Federal de Derechos art. 49, fr. I; minimum MXN 461.61 in 2026) and
+shows import IVA 16% on (customs value + IGI + DTA) separately: a registered importer usually credits it back, so it
+is cash flow, not cost. Since 2026 many lines pay 5–50% IGI on goods from non-FTA countries such as China (see the reference).
 
 Use it to (1) show a US buyer the same landed cost from you vs another origin, (2) decide between FOB/DAP/DDP,
 (3) write the "tariff changed on your HTS line" email. It does not replace a customs broker. Python 3.9+ stdlib only.
@@ -21,6 +24,7 @@ import argparse, re
 
 MPF_RATE, MPF_MIN, MPF_MAX = 0.003464, 34.58, 670.86  # US FY2027 (from 2026-10-01, 91 FR 48398); CBP adjusts min/max every October
 HMF_RATE = 0.00125
+MX_DTA, MX_IVA = 0.008, 0.16  # verified 2026-11-13 on the official LFD text (diputados.gob.mx, last reform DOF 07-11-2025)
 
 
 def main():
@@ -52,7 +56,11 @@ def main():
         amt = base * r / 100 + per_unit * a.qty
         total_duty += amt
         lines.append((name + (f" ({r:g}% + {per_unit:g}/unit)" if per_unit else ""), r, amt))
-    fees = 0.0
+    fees, iva = 0.0, 0.0
+    mx = a.dest.upper() == "MX"
+    if mx:
+        fees = base * MX_DTA
+        iva = (base + total_duty + fees) * MX_IVA
     if us:
         ev = a.entry_value or goods
         mpf = min(max(ev * MPF_RATE, MPF_MIN), MPF_MAX) * goods / ev
@@ -66,6 +74,9 @@ def main():
     print(f"  total duty {total_duty:,.2f} ({100*total_duty/base if base else 0:.1f}% of duty base)")
     if us:
         print(f"  MPF + HMF {fees:,.2f}")
+    if mx:
+        print(f"  DTA 0.8% {fees:,.2f} (minimum about MXN 461.61 per entry)")
+        print(f"  IVA 16% on value + IGI + DTA: {iva:,.2f} (paid at the border; usually credited back to a registered importer, so not in landed cost)")
     if a.other:
         print(f"  other costs {a.other:,.2f}")
     print(f"Landed cost {landed:,.2f} = {landed/a.qty:,.4f} per unit (FOB {a.fob:,.4f}; uplift x{landed/goods:.2f})")
