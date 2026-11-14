@@ -5,7 +5,7 @@ license: MIT. See LICENSE.txt
 compatibility: Works with any Agent Skills compatible agent. Scripts need Python 3.9+ standard library only. Web search and internet access improve results but are optional.
 metadata:
   author: Vic (voidgazer009)
-  version: "3.1.0"
+  version: "3.1.1"
   collection: vic-foreign-trade-skills
 ---
 
@@ -32,7 +32,7 @@ Turn "I make X, find me buyers in Y" into a ranked list of real importers, the r
 | "I have trade-show cards" | Step 9 `import-show`, then `assets/show-followup-template.md` |
 | "Is this buyer real? / they want B/L copy or open account / bank details changed" | Step 13 |
 | "US or Mexico tariffs / buyer says too expensive because of duty" | Step 12 with `scripts/landed_cost.py` |
-| "Can this Brazil/Mexico buyer import? / Inmetro / NOM" | Step 13, then `references/tariff-landscape.md` |
+| "Can this Brazil/Mexico buyer import? / Inmetro" | Step 13, then `references/tariff-landscape.md` |
 
 ## Workflow
 

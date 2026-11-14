@@ -1,3 +1,6 @@
+## export-buyer-prospecting 3.1.1 (2026-11-14)
+- Router row no longer mentions NOM (no NOM content yet). Docs-only patch; audit 189/189.
+
 # Changelog
 
 ## export-buyer-prospecting 3.1.0 · 2026-11-13
